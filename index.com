@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Verifikasi Pengguna Sitenexs</title>
+    
+    <link rel="icon" type="image/png" href="https://sitenexs.com/assets/logo/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-subtle: #e2e8f0;
+            --border-focus: #93c5fd;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08);
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .brand img { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; }
+
+        .btn-logout {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .btn-logout:hover { color: var(--danger); }
+
+        /* CONTAINER & HEADER */
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* SEARCH BOX */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 99px;
+            padding: 0.6rem 1.2rem;
+            width: 100%;
+            max-width: 320px;
+            transition: all 0.2s;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--border-focus);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding-left: 0.5rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        /* CARD & TABLE DESKTOP */
+        .admin-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        td { font-size: 0.95rem; vertical-align: middle; }
+
+        /* DATA PENGGUNA */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--primary-light);
+            border: 2px solid #f1f5f9;
+        }
+
+        .name-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.1rem;
+        }
+
+        .verification-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .user-email {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .business-text {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* BUTTONS & BADGES */
+        .btn {
+            padding: 0.45rem 1rem;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+
+        .btn-verify {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        .btn-verify:hover { background: var(--primary); color: #fff; }
+
+        .btn-unverify {
+            background: var(--danger-light);
+            color: #b91c1c;
+        }
+        .btn-unverify:hover { background: var(--danger); color: #fff; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-verified { background: var(--primary-light); color: var(--primary-dark); border: 1px solid rgba(37,99,235,0.2); }
+        .status-standard { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-subtle); }
+
+        #loading { text-align: center; padding: 3rem; color: var(--text-muted); font-weight: 500; }
+
+        /* RESPONSIVE MOBILE (Ubah Tabel Jadi List Card) */
+        @media (max-width: 768px) {
+            .container { margin: 1.5rem auto; padding: 0 1rem; }
+            .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .search-box { max-width: 100%; }
+            
+            .admin-card { background: transparent; border: none; box-shadow: none; border-radius: 0; }
+            
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { display: none; /* Sembunyikan header tabel di mobile */ }
+            
+            tr {
+                background: var(--bg-card);
+                border: 1px solid var(--border-subtle);
+                border-radius: var(--radius-lg);
+                margin-bottom: 1rem;
+                padding: 1.25rem;
+                box-shadow: var(--shadow-sm);
+            }
+            
+            td {
+                border: none;
+                padding: 0;
+                position: relative;
+            }
+
+            td.hide-mobile { display: none; } /* Sembunyikan sel spesifik desktop */
+
+            /* Penyesuaian layout di dalam card mobile */
+            .user-cell { margin-bottom: 1rem; }
+            
+            /* Status ditempatkan absolute di pojok kanan atas */
+            td:nth-child(3) {
+                position: absolute;
+                top: 1.25rem;
+                right: 1.25rem;
+            }
+
+            /* Tombol Aksi memenuhi lebar penuh di bawah */
+            td:nth-child(4) {
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px dashed var(--border-subtle);
+            }
+            td:nth-child(4) .btn { width: 100%; padding: 0.6rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <img src="https://sitenexs.com/assets/logo/logo.png" alt="Sitenexs">
+            <span>Admin Sitenexs</span>
+        </div>
+        <a href="index.html" class="btn-logout hide-mobile">
+            <i class="fas fa-sign-out-alt"></i> Keluar
+        </a>
+        <a href="index.html" class="btn-logout show-mobile" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Manajemen Verifikasi</h1>
+                <p>Kelola lencana centang biru (Verified) pengguna Sitenexs.</p>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search text-muted"></i>
+                <input type="text" id="searchInput" placeholder="Cari nama atau email...">
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Profil Pengguna</th>
+                            <th class="hide-mobile">Akun Bisnis</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Data pengguna akan di-render di sini via JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="loading"><i class="fas fa-spinner fa-spin"></i> Memuat data pengguna...</div>
+        </div>
+    </main>
+
+    <style>
+        /* Extra fix for mobile logout icon */
+        @media (max-width: 600px) {
+            .hide-mobile.btn-logout { display: none; }
+            .show-mobile.btn-logout { display: inline-flex !important; font-size: 1.2rem; }
+            .header-title h1 { font-size: 1.2rem; }
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761',
+            measurementId: 'G-C7YL0Q7YRQ'
+        };
+
+        const supabaseUrl = 'https://xqcbyamxiekdxytntlno.supabase.co';
+        const avatarBucket = 'profile-photos';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let usersData = [];
+        const tableBody = document.getElementById('userTableBody');
+        const loading = document.getElementById('loading');
+        const searchInput = document.getElementById('searchInput');
+
+        async function fetchUsers() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                usersData = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    usersData.push({
+                        uid: doc.id,
+                        nama: data.namaLengkap || data.namaDepan + (data.namaBelakang ? ' ' + data.namaBelakang : '') || 'Tanpa Nama',
+                        email: data.email || 'Tidak ada email',
+                        bisnis: data.bisnis?.nama || 'Belum diatur',
+                        isVerified: data.isVerified || false 
+                    });
+                });
+                
+                loading.style.display = 'none';
+                renderTable(usersData);
+            } catch (error) {
+                console.error("Gagal memuat pengguna:", error);
+                loading.innerHTML = '<span style="color:red;"><i class="fas fa-exclamation-circle"></i> Gagal memuat data. Periksa koneksi/rules Firestore.</span>';
+            }
+        }
+
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color:var(--text-muted);">Tidak ada pengguna ditemukan.</td></tr>';
+                return;
+            }
+
+            data.forEach(user => {
+                const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(user.uid)}/profile-photo`;
+                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=2563eb&color=fff`;
+
+                const verifiedIcon = user.isVerified 
+                    ? `<img src="https://sitenexs.com/assets/logo/verified.png" alt="Verified" class="verification-icon">` 
+                    : '';
+                
+                const statusBadge = user.isVerified 
+                    ? `<span class="status-badge status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>` 
+                    : `<span class="status-badge status-standard">Standar</span>`;
+
+                const actionButton = user.isVerified
+                    ? `<button class="btn btn-unverify" onclick="toggleVerification('${user.uid}', false)"><i class="fas fa-times"></i> Cabut Verifikasi</button>`
+                    : `<button class="btn btn-verify" onclick="toggleVerification('${user.uid}', true)"><i class="fas fa-check"></i> Verifikasi Akun</button>`;
+
+                const row = `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${photoUrl}" class="user-avatar" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                                <div>
+                                    <div class="name-wrapper">
+                                        ${user.nama}
+                                        ${verifiedIcon}
+                                    </div>
+                                    <div class="user-email">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="hide-mobile">
+                            <span class="business-text">${user.bisnis}</span>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td style="text-align: right;">${actionButton}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        window.toggleVerification = async function(uid, setVerified) {
+            const confirmMsg = setVerified 
+                ? "Berikan lencana verifikasi (centang biru) ke pengguna ini?" 
+                : "Cabut lencana verifikasi dari pengguna ini?";
+                
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const userRef = doc(db, "users", uid);
+                await updateDoc(userRef, {
+                    isVerified: setVerified
+                });
+                
+                const userIndex = usersData.findIndex(u => u.uid === uid);
+                if (userIndex !== -1) {
+                    usersData[userIndex].isVerified = setVerified;
+                }
+                
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredData = usersData.filter(u => 
+                    u.nama.toLowerCase().includes(searchTerm) || 
+                    u.email.toLowerCase().includes(searchTerm) ||
+                    u.bisnis.toLowerCase().includes(searchTerm)
+                );
+                renderTable(filteredData);
+
+            } catch (error) {
+                console.error("Gagal update status:", error);
+                alert("Akses Ditolak: Anda tidak memiliki izin Admin untuk mengubah status Firestore.");
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = usersData.filter(user => 
+                user.nama.toLowerCase().includes(term) || 
+                user.email.toLowerCase().includes(term) ||
+                user.bisnis.toLowerCase().includes(term)
+            );
+            renderTable(filtered);
+        });
+
+        fetchUsers();
+    </script>
+</body>
+</html>
