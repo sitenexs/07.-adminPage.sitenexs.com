@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitenexs Admin — Kelola Paket Harga</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="https://sitenexs.com/assets/logo/logo.png">
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #eff6ff;
+            --accent: #10b981; --bg-body: #f8fafc; --bg-card: #ffffff;
+            --text-main: #0f172a; --text-muted: #475569;
+            --border-subtle: #e2e8f0; --border-medium: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+            --radius-md: 0.625rem; --radius-lg: 1rem; --radius-xl: 1.5rem; --radius-full: 9999px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-size: 15px; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; outline: none; border: none; font-family: inherit; }
+
+        /* NAVBAR ADMIN */
+        #navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);
+        }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; height: 75px; padding: 0 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.25rem; }
+        .logo img { height: 38px; width: 38px; border-radius: 50%; }
+        .admin-badge { background: #fee2e2; color: #b91c1c; font-size: 0.7rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: var(--radius-full); margin-left: 0.5rem; letter-spacing: 0.05em; }
+
+        /* CONTAINER */
+        .admin-container { max-width: 1100px; margin: 0 auto; padding: 120px 1.5rem 4rem 1.5rem; }
+        .page-header { margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; }
+        .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+        .page-desc { color: var(--text-muted); font-size: 1rem; }
+        
+        .btn-add { background: var(--primary); color: #fff; padding: 0.8rem 1.5rem; border-radius: var(--radius-full); font-weight: 700; transition: var(--transition); display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-add:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+
+        /* GRID PAKET (Diperkecil & Lebih Rapi) */
+        .paket-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .paket-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm); position: relative; display: flex; flex-direction: column; transition: var(--transition); }
+        .paket-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--border-medium); }
+        
+        .paket-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 0.25rem 1rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; box-shadow: var(--shadow-sm); white-space: nowrap; }
+        
+        .paket-icon-box { width: 50px; height: 50px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin: 0 auto 1rem auto; }
+        
+        .paket-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.2rem; text-align: center; }
+        .paket-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; text-align: center; line-height: 1.4; }
+        
+        .paket-price-box { margin-bottom: 1.5rem; text-align: center; background: var(--bg-alt); padding: 1rem; border-radius: var(--radius-md); }
+        .price-strike { font-size: 0.9rem; color: #ef4444; text-decoration: line-through; display: block; font-weight: 600; margin-bottom: 0.2rem; }
+        .price-final { font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .price-final span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        
+        .action-buttons { display: flex; gap: 0.75rem; width: 100%; margin-top: auto; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem; }
+        .btn-edit { flex: 1; background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border-medium); padding: 0.6rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.85rem; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+        .btn-edit:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+        .btn-delete { flex: 1; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 0.6rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.85rem; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+        .btn-delete:hover { background: #e11d48; color: #fff; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: var(--transition); z-index: 9999; padding: 1rem; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card { background: var(--bg-card); width: 100%; max-width: 600px; max-height: calc(100vh - 2rem); overflow-y: auto; border-radius: var(--radius-xl); padding: 2.5rem; transform: translateY(30px); transition: var(--transition); box-shadow: var(--shadow-lg); }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem; }
+        .modal-header h3 { font-size: 1.35rem; font-weight: 800; color: var(--text-main); }
+        .close-modal { background: var(--bg-body); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-muted); transition: var(--transition); border: 1px solid var(--border-medium); }
+        .close-modal:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-main); }
+        .form-control { width: 100%; padding: 0.85rem 1.25rem; border: 1px solid var(--border-medium); border-radius: var(--radius-md); font-size: 0.95rem; outline: none; background: var(--bg-body); transition: var(--transition); color: var(--text-main); }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); background: #fff; }
+        .form-info { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.5; }
+        
+        .btn-save { width: 100%; background: var(--primary); color: #fff; padding: 1rem; border-radius: var(--radius-full); font-size: 1rem; font-weight: 700; margin-top: 1.5rem; transition: var(--transition); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-save:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .admin-container { padding-top: 100px; padding-bottom: 2rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 1.25rem; margin-bottom: 2rem; }
+            .btn-add { width: 100%; justify-content: center; }
+            .paket-card { padding: 1.5rem; }
+            .modal-card { padding: 1.5rem; }
+            .grid-2 { grid-template-columns: 1fr; gap: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://sitenexs.com/assets/logo/logo.png" alt="Logo">
+                <span>SiteNexs <span class="admin-badge">ADMIN</span></span>
+            </div>
+            <a href="https://adminpage.sitenexs.com" style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-arrow-left"></i> <span class="back-text">Kembali</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Manajemen Paket Harga</h1>
+                <p class="page-desc">Atur nama, ikon, harga, dan fitur paket yang tampil di halaman depan.</p>
+            </div>
+            <button class="btn-add" id="btnTambahPaket">
+                <i class="fas fa-plus"></i> Tambah Paket Baru
+            </button>
+        </div>
+
+        <div id="paketContainer" class="paket-grid">
+            <div style="text-align: center; width: 100%; color: var(--text-muted); font-size: 1.1rem; padding: 3rem 0;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i><br>
+                Memuat data paket...
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL EDIT / TAMBAH -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Edit Paket Langganan</h3>
+                <button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Nama Paket</label>
+                        <input type="text" id="editNama" class="form-control" required placeholder="Contoh: Paket Pro">
+                    </div>
+                    <div class="form-group">
+                        <label>Ikon Visual</label>
+                        <select id="editIcon" class="form-control">
+                            <option value="fa-cube">🧊 Kotak / Cube (Basic)</option>
+                            <option value="fa-rocket">🚀 Roket (Pro / Cepat)</option>
+                            <option value="fa-crown">👑 Mahkota (Premium)</option>
+                            <option value="fa-gem">💎 Permata (Eksklusif)</option>
+                            <option value="fa-star">⭐ Bintang (Unggulan)</option>
+                            <option value="fa-store">🏪 Toko (Bisnis)</option>
+                            <option value="fa-box">📦 Box (Standar)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Deskripsi Singkat</label>
+                    <input type="text" id="editDesc" class="form-control" required placeholder="Contoh: Skala besar untuk banyak cabang">
+                </div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Harga Asli (Rp)</label>
+                        <input type="number" id="editHargaAsli" class="form-control" required placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Promo (Rp)</label>
+                        <input type="number" id="editHargaDiskon" class="form-control" required placeholder="0" min="0">
+                        <div class="form-info"><i class="fas fa-info-circle"></i> Isi 0 jika gratis.</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Daftar Fitur Paket</label>
+                    <textarea id="editFitur" class="form-control" rows="5" required placeholder="+ Fitur unggulan pertama&#10;+ Fitur andalan kedua&#10;- Fitur yang tidak didapat"></textarea>
+                    <div class="form-info">
+                        Gunakan awalan <b>+</b> (spasi) untuk fitur didapat (Ceklis Hijau).<br>
+                        Gunakan awalan <b>-</b> (spasi) untuk fitur tidak didapat (Silang Abu).
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status Tampilan</label>
+                    <select id="editPopuler" class="form-control">
+                        <option value="false">Tampilan Standar</option>
+                        <option value="true">Tandai "Paling Diminati" (Border Biru)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-save" id="btnSaveSubmit">Simpan Paket</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761',
+            measurementId: 'G-C7YL0Q7YRQ'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        let paketData = [];
+        let isEditMode = false;
+
+        function formatRupiah(angka) {
+            if(angka === 0) return 'Gratis';
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // AMBIL DATA PAKET
+        async function fetchPaket() {
+            const container = document.getElementById('paketContainer');
+            try {
+                const querySnapshot = await getDocs(collection(db, "packages"));
+                paketData = [];
+
+                if (querySnapshot.empty) {
+                    await setupDefaultPackages();
+                    return; 
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    paketData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                paketData.sort((a, b) => a.hargaAsli - b.hargaAsli);
+                renderPaket(paketData);
+
+            } catch (error) {
+                console.error("Gagal memuat paket:", error);
+                container.innerHTML = '<div style="color:#e11d48; text-align:center; width:100%; padding: 2rem;"><i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i><br>Gagal terhubung ke database. Periksa koneksi internet Anda.</div>';
+            }
+        }
+
+        // AUTO SETUP DATA DEFAULT + IKON
+        async function setupDefaultPackages() {
+            const basic = {
+                namaPaket: "Paket Basic", deskripsi: "Untuk UMKM yang baru mulai go-digital",
+                hargaAsli: 0, hargaDiskon: 0, isPopuler: false, icon: "fa-cube",
+                fitur: "+ QR Menu Digital Basic\n+ Profil Web Sederhana\n- Sistem Kasir (POS)\n- Laporan Keuangan"
+            };
+            const pro = {
+                namaPaket: "Paket Pro", deskripsi: "Akses penuh untuk otomasi bisnis",
+                hargaAsli: 150000, hargaDiskon: 99000, isPopuler: true, icon: "fa-rocket",
+                fitur: "+ Semua Fitur Basic\n+ Aplikasi Kasir / POS Web\n+ Rekap Laporan Keuangan\n+ Sistem Presensi Karyawan"
+            };
+
+            await setDoc(doc(db, "packages", "basic"), basic);
+            await setDoc(doc(db, "packages", "pro"), pro);
+            fetchPaket(); 
+        }
+
+        // RENDER KARTU PAKET (Lebih Kecil & Rapi)
+        function renderPaket(data) {
+            const container = document.getElementById('paketContainer');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div style="text-align:center; width:100%; color:var(--text-muted); padding: 3rem 0;">Belum ada paket yang dibuat. Silakan klik tombol "Tambah Paket Baru".</div>';
+                return;
+            }
+
+            data.forEach(p => {
+                let badgeHTML = p.isPopuler ? `<div class="paket-badge">Paling Diminati</div>` : '';
+                let borderStyle = p.isPopuler ? `border-top: 4px solid var(--primary); transform: scale(1.02);` : `border-top: 4px solid var(--border-medium);`;
+                
+                let priceHTML = '';
+                if(p.hargaDiskon > 0 && p.hargaDiskon < p.hargaAsli) {
+                    priceHTML = `<span class="price-strike">${formatRupiah(p.hargaAsli)}</span> <div class="price-final">${formatRupiah(p.hargaDiskon)}<span>/bln</span></div>`;
+                } else if(p.hargaAsli > 0) {
+                    priceHTML = `<div class="price-final">${formatRupiah(p.hargaAsli)}<span>/bln</span></div>`;
+                } else {
+                    priceHTML = `<div class="price-final">Gratis</div>`;
+                }
+                
+                const iconClass = p.icon || 'fa-box';
+
+                const cardHTML = `
+                    <div class="paket-card" style="${borderStyle}">
+                        ${badgeHTML}
+                        
+                        <div class="paket-icon-box">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        
+                        <h3 class="paket-title" style="color: ${p.isPopuler ? 'var(--primary)' : 'var(--text-main)'};">${p.namaPaket}</h3>
+                        <p class="paket-desc">${p.deskripsi}</p>
+                        
+                        <div class="paket-price-box">${priceHTML}</div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn-delete" data-id="${p.id}"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => { openEdit(e.currentTarget.getAttribute('data-id')); });
+            });
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => { deletePaket(e.currentTarget.getAttribute('data-id')); });
+            });
+        }
+
+        // KONTROL MODAL
+        const modal = document.getElementById('editModal');
+        
+        document.getElementById('btnTambahPaket').addEventListener('click', () => {
+            isEditMode = false;
+            document.getElementById('modalTitle').innerText = "Tambah Paket Baru";
+            document.getElementById('btnSaveSubmit').innerText = "Buat Paket";
+            
+            document.getElementById('editId').value = '';
+            document.getElementById('editNama').value = '';
+            document.getElementById('editIcon').value = 'fa-box';
+            document.getElementById('editDesc').value = '';
+            document.getElementById('editHargaAsli').value = '';
+            document.getElementById('editHargaDiskon').value = '';
+            document.getElementById('editFitur').value = '';
+            document.getElementById('editPopuler').value = 'false';
+            
+            modal.classList.add('active');
+        });
+
+        function openEdit(id) {
+            isEditMode = true;
+            document.getElementById('modalTitle').innerText = "Edit Paket Langganan";
+            document.getElementById('btnSaveSubmit').innerText = "Simpan Perubahan";
+
+            const p = paketData.find(x => x.id === id);
+            if(p) {
+                document.getElementById('editId').value = p.id;
+                document.getElementById('editNama').value = p.namaPaket;
+                document.getElementById('editIcon').value = p.icon || 'fa-box';
+                document.getElementById('editDesc').value = p.deskripsi;
+                document.getElementById('editHargaAsli').value = p.hargaAsli;
+                document.getElementById('editHargaDiskon').value = p.hargaDiskon;
+                document.getElementById('editFitur').value = p.fitur;
+                document.getElementById('editPopuler').value = p.isPopuler ? "true" : "false";
+                modal.classList.add('active');
+            }
+        }
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+        
+        // SIMPAN DATA
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnSave = document.getElementById('btnSaveSubmit');
+            const originalText = btnSave.innerHTML;
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btnSave.disabled = true;
+
+            const id = document.getElementById('editId').value;
+            const payload = {
+                namaPaket: document.getElementById('editNama').value.trim(),
+                icon: document.getElementById('editIcon').value,
+                deskripsi: document.getElementById('editDesc').value.trim(),
+                hargaAsli: parseInt(document.getElementById('editHargaAsli').value) || 0,
+                hargaDiskon: parseInt(document.getElementById('editHargaDiskon').value) || 0,
+                fitur: document.getElementById('editFitur').value.trim(),
+                isPopuler: document.getElementById('editPopuler').value === "true"
+            };
+
+            try {
+                if (isEditMode) {
+                    await updateDoc(doc(db, "packages", id), payload);
+                    alert("Paket berhasil diperbarui!");
+                } else {
+                    await addDoc(collection(db, "packages"), payload);
+                    alert("Paket baru berhasil ditambahkan!");
+                }
+                modal.classList.remove('active');
+                fetchPaket(); 
+            } catch (error) {
+                console.error("Gagal menyimpan paket:", error);
+                alert("Gagal menyimpan. Pastikan akses Write Firestore terbuka.");
+            } finally {
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
+            }
+        });
+
+        // HAPUS PAKET
+        async function deletePaket(id) {
+            const p = paketData.find(x => x.id === id);
+            const konfirmasi = confirm(`Apakah Anda yakin ingin menghapus paket "${p.namaPaket}"?\n\nPaket yang dihapus tidak akan lagi muncul di halaman depan.`);
+            if (konfirmasi) {
+                try {
+                    await deleteDoc(doc(db, "packages", id));
+                    fetchPaket(); 
+                } catch (error) {
+                    console.error("Gagal menghapus:", error);
+                    alert("Gagal menghapus paket dari database.");
+                }
+            }
+        }
+
+        // Init Load
+        fetchPaket();
+    </script>
+</body>
+</html>
