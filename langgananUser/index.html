@@ -192,7 +192,7 @@
             <div class="stat-card">
                 <div class="stat-icon icon-green"><i class="fas fa-crown"></i></div>
                 <div class="stat-info">
-                    <h4>Mitra Paket Pro</h4>
+                    <h4>Mitra Paket Pro/Premium</h4>
                     <p id="totalPro">0</p>
                 </div>
             </div>
@@ -251,9 +251,9 @@
                 </div>
                 <div class="form-group">
                     <label>Ubah Paket</label>
+                    <!-- Opsi ini akan diisi secara dinamis dari database -->
                     <select id="editPaket" class="form-control">
                         <option value="Basic">Basic (Gratis)</option>
-                        <option value="Pro">Pro (Berbayar)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -272,7 +272,7 @@
         </div>
     </div>
 
-        <!-- JAVASCRIPT UNTUK DATA ADMIN (FIREBASE & SUPABASE) -->
+    <!-- JAVASCRIPT UNTUK DATA ADMIN (FIREBASE & SUPABASE) -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
         import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
@@ -296,7 +296,42 @@
 
         let allMitraData = [];
 
-        // AMBIL DATA DARI FIREBASE
+        // 1. FUNGSI UNTUK MENGAMBIL DAFTAR PAKET DINAMIS DARI FIRESTORE UNTUK DROPDOWN
+        async function fetchPackagesForDropdown() {
+            try {
+                const pkgSnap = await getDocs(collection(db, "packages"));
+                const selectPaket = document.getElementById('editPaket');
+                selectPaket.innerHTML = ''; // Kosongkan opsi bawaan
+
+                let packageCount = 0;
+                pkgSnap.forEach(doc => {
+                    const namaPaket = doc.data().namaPaket;
+                    selectPaket.innerHTML += `<option value="${namaPaket}">${namaPaket}</option>`;
+                    packageCount++;
+                });
+
+                // Fallback jika belum ada paket di database
+                if (packageCount === 0) {
+                    selectPaket.innerHTML = '<option value="Basic">Basic (Gratis)</option><option value="Pro">Pro</option>';
+                }
+            } catch (error) {
+                console.error("Gagal memuat paket untuk dropdown:", error);
+            }
+        }
+
+        // 2. FUNGSI HELPER UNTUK BADGE IKON PAKET DINAMIS
+        function getPaketBadge(paketNama) {
+            const nameLower = (paketNama || 'Basic').toLowerCase();
+            if (nameLower.includes('pro')) {
+                return `<span class="badge badge-pro"><i class="fas fa-crown"></i> ${paketNama}</span>`;
+            } else if (nameLower.includes('premium') || nameLower.includes('vip') || nameLower.includes('ultimate')) {
+                return `<span class="badge" style="background: #e9d5ff; color: #6b21a8;"><i class="fas fa-gem"></i> ${paketNama}</span>`;
+            } else {
+                return `<span class="badge badge-basic"><i class="fas fa-box"></i> ${paketNama}</span>`;
+            }
+        }
+
+        // 3. AMBIL DATA USER DARI FIREBASE
         async function fetchMitra() {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Memuat data mitra...</td></tr>';
@@ -307,14 +342,12 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
-                    
-                    // Ekstrak data yang sama dengan index.html + properti langganan
                     allMitraData.push({
                         uid: data.uid || docSnap.id,
                         namaOwner: data.namaLengkap || data.namaDepan + (data.namaBelakang ? ' ' + data.namaBelakang : '') || 'Mitra Sitenexs',
                         namaToko: data.bisnis?.nama || 'Bisnis Sitenexs',
-                        paket: data.paketLangganan || 'Basic', // Default Basic jika belum ada di DB
-                        status: data.statusLangganan || 'Aktif', // Default Aktif
+                        paket: data.paketLangganan || 'Basic', 
+                        status: data.statusLangganan || 'Aktif', 
                         expired: data.expiredAt || '2099-12-31'
                     });
                 });
@@ -326,7 +359,7 @@
             }
         }
 
-        // RENDER DATA KE TABEL
+        // 4. RENDER DATA KE TABEL
         function renderTable(data) {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
@@ -339,10 +372,10 @@
 
             data.forEach(mitra => {
                 if(mitra.status === 'Aktif') aktif++;
-                if(mitra.paket === 'Pro' && mitra.status === 'Aktif') pro++;
+                // Asumsi jika bukan Basic/Gratis berarti masuk hitungan Pro/Berbayar
+                if(mitra.paket.toLowerCase() !== 'basic' && mitra.status === 'Aktif') pro++;
                 if(mitra.status === 'Expired') expiredList++;
 
-                // URL Avatar dari Supabase (sama seperti index.html)
                 const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(mitra.uid)}/profile-photo`;
                 const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(mitra.namaOwner)}&background=random&color=fff`;
 
@@ -357,7 +390,7 @@
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge ${mitra.paket === 'Pro' ? 'badge-pro' : 'badge-basic'}">${mitra.paket}</span></td>
+                    <td>${getPaketBadge(mitra.paket)}</td>
                     <td><span class="badge ${mitra.status === 'Aktif' ? 'badge-active' : 'badge-expired'}">${mitra.status}</span></td>
                     <td style="font-family: monospace; font-size: 0.9rem;">${mitra.expired === '2099-12-31' ? 'Selamanya (Free)' : mitra.expired}</td>
                     <td>
@@ -367,12 +400,10 @@
                 tableBody.appendChild(tr);
             });
 
-            // Update Statistik Atas
             document.getElementById('totalAktif').innerText = aktif;
             document.getElementById('totalPro').innerText = pro;
             document.getElementById('totalExpired').innerText = expiredList;
 
-            // Pasang event listener untuk tombol edit
             document.querySelectorAll('.open-edit-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const uid = e.currentTarget.getAttribute('data-uid');
@@ -386,9 +417,15 @@
         function openEdit(uid) {
             const mitra = allMitraData.find(m => m.uid === uid);
             if(mitra) {
-                document.getElementById('editId').value = mitra.uid; // Pakai string UID
+                document.getElementById('editId').value = mitra.uid;
                 document.getElementById('editNama').value = mitra.namaToko;
-                document.getElementById('editPaket').value = mitra.paket;
+                
+                // Set value dropdown (jika paket tidak ada di database, akan fallback ke index 0)
+                const paketSelect = document.getElementById('editPaket');
+                if (Array.from(paketSelect.options).some(opt => opt.value === mitra.paket)) {
+                    paketSelect.value = mitra.paket;
+                }
+                
                 document.getElementById('editStatus').value = mitra.status;
                 document.getElementById('editTanggal').value = mitra.expired;
                 modal.classList.add('active');
@@ -456,8 +493,8 @@
         document.getElementById('searchInput').addEventListener('input', filterData);
         document.getElementById('filterStatus').addEventListener('change', filterData);
 
-        // Panggil fungsi saat halaman dimuat
-        fetchMitra();
+        // PANGGIL FUNGSI SECARA BERURUTAN (Ambil list paket dulu, baru ambil data user)
+        fetchPackagesForDropdown().then(fetchMitra);
     </script>
 
 </body>
