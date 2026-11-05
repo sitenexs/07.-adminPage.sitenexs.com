@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitenexs Admin — Kelola Langganan</title>
+    <meta name="robots" content="noindex, nofollow"> <!-- Privasi Admin -->
+    <link rel="icon" type="image/png" href="https://sitenexs.com/assets/logo/logo.png">
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* MENGGUNAKAN VARIABEL DESAIN SITENEXS */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --accent: #10b981;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-subtle: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+            --radius-md: 0.625rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-size: 15px; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; outline: none; border: none; font-family: inherit; }
+
+        /* NAVBAR ADMIN */
+        #navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);
+        }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; height: 70px; padding: 0 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.2rem; }
+        .logo img { height: 36px; width: 36px; border-radius: 50%; }
+        
+        .admin-badge {
+            background: #fee2e2; color: #b91c1c; font-size: 0.7rem; font-weight: 800;
+            padding: 0.2rem 0.6rem; border-radius: var(--radius-full); margin-left: 0.5rem;
+        }
+
+        /* CONTAINER UTAMA */
+        .admin-container {
+            max-width: 1200px; margin: 0 auto; padding: 100px 1.5rem 3rem 1.5rem;
+        }
+        .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+        .page-desc { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem; }
+
+        /* STATISTIK */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg); padding: 1.5rem; display: flex; align-items: center; gap: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-icon {
+            width: 50px; height: 50px; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+        }
+        .icon-blue { background: #dbeafe; color: #2563eb; }
+        .icon-green { background: #dcfce7; color: #16a34a; }
+        .icon-red { background: #fee2e2; color: #dc2626; }
+        .stat-info h4 { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .stat-info p { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem; }
+
+        /* KONTROL TABEL */
+        .table-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-card); padding: 1rem 1.5rem;
+            border: 1px solid var(--border-subtle); border-bottom: none;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0; flex-wrap: wrap; gap: 1rem;
+        }
+        .search-box {
+            display: flex; align-items: center; gap: 0.5rem; background: var(--bg-body);
+            border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 0.5rem 1rem; width: 300px; max-width: 100%;
+        }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 0.9rem; color: var(--text-main); }
+        .search-box i { color: var(--text-muted); }
+
+        /* TABEL DATA */
+        .table-wrapper {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow-x: auto;
+            box-shadow: var(--shadow-sm); margin-bottom: 2rem;
+        }
+        .admin-table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: left; }
+        .admin-table th { background: var(--bg-body); padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .admin-table td { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.95rem; vertical-align: middle; }
+        .admin-table tr:hover { background: #f8fafc; }
+        
+        .user-cell { display: flex; align-items: center; gap: 0.75rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .user-info h5 { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .user-info p { font-size: 0.8rem; color: var(--text-muted); }
+
+        .badge { padding: 0.3rem 0.8rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; }
+        .badge-pro { background: #fef08a; color: #854d0e; } /* Kuning/Emas untuk Pro */
+        .badge-basic { background: #e0e7ff; color: #3730a3; } /* Biru untuk Basic */
+        .badge-active { background: #dcfce7; color: #166534; }
+        .badge-expired { background: #fee2e2; color: #991b1b; }
+
+        .btn-action {
+            background: var(--primary-light); color: var(--primary); padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-md); font-size: 0.8rem; font-weight: 700; transition: var(--transition);
+        }
+        .btn-action:hover { background: var(--primary); color: #fff; }
+
+        /* MODAL EDIT */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: var(--transition); z-index: 9999;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-card {
+            background: var(--bg-card); width: 100%; max-width: 450px;
+            border-radius: var(--radius-lg); padding: 2rem; transform: translateY(20px); transition: var(--transition);
+            margin: 1rem;
+        }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { font-size: 1.2rem; font-weight: 800; }
+        .close-modal { background: none; font-size: 1.2rem; color: var(--text-muted); }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .form-control {
+            width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md); font-size: 0.95rem; outline: none; background: var(--bg-body);
+        }
+        .form-control:focus { border-color: var(--primary); }
+        .btn-save {
+            width: 100%; background: var(--primary); color: #fff; padding: 0.8rem;
+            border-radius: var(--radius-md); font-weight: 700; margin-top: 1rem; transition: var(--transition);
+        }
+        .btn-save:hover { background: var(--primary-dark); }
+
+        @media (max-width: 768px) {
+            .table-controls { flex-direction: column; align-items: stretch; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://sitenexs.com/assets/logo/logo.png" alt="Logo">
+                <span>SiteNexs <span class="admin-badge">ADMIN</span></span>
+            </div>
+            <a href="index.html" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">
+                <i class="fas fa-home"></i> Kembali
+            </a>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Manajemen Langganan</h1>
+                <p class="page-desc">Atur paket, masa aktif, dan status tagihan mitra UMKM.</p>
+            </div>
+            <button class="btn-action" style="padding: 0.6rem 1.2rem;"><i class="fas fa-plus"></i> Tambah Mitra Manual</button>
+        </div>
+
+        <!-- STATISTIK -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h4>Total Mitra Aktif</h4>
+                    <p id="totalAktif">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fas fa-crown"></i></div>
+                <div class="stat-info">
+                    <h4>Mitra Paket Pro</h4>
+                    <p id="totalPro">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-red"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="stat-info">
+                    <h4>Segera Kedaluwarsa</h4>
+                    <p id="totalExpired">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABEL -->
+        <div class="table-controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari nama toko atau owner...">
+            </div>
+            <select class="form-control" style="width: auto; padding: 0.5rem 1rem;" id="filterStatus">
+                <option value="all">Semua Status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Expired">Kedaluwarsa</option>
+            </select>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mitra / UMKM</th>
+                        <th>Paket Langganan</th>
+                        <th>Status</th>
+                        <th>Masa Aktif S/D</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data akan dirender oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- MODAL EDIT LANGGANAN -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Edit Langganan Mitra</h3>
+                <button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Nama UMKM</label>
+                    <input type="text" id="editNama" class="form-control" readonly style="background: #f1f5f9;">
+                </div>
+                <div class="form-group">
+                    <label>Ubah Paket</label>
+                    <select id="editPaket" class="form-control">
+                        <option value="Basic">Basic (Gratis)</option>
+                        <option value="Pro">Pro (Berbayar)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editStatus" class="form-control">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Expired">Kedaluwarsa (Suspended)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Perpanjang Hingga</label>
+                    <input type="date" id="editTanggal" class="form-control">
+                </div>
+                <button type="submit" class="btn-save">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+        <!-- JAVASCRIPT UNTUK DATA ADMIN (FIREBASE & SUPABASE) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+
+        // Konfigurasi Firebase Sitenexs
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761',
+            measurementId: 'G-C7YL0Q7YRQ'
+        };
+
+        const supabaseUrl = 'https://xqcbyamxiekdxytntlno.supabase.co';
+        const avatarBucket = 'profile-photos';
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allMitraData = [];
+
+        // AMBIL DATA DARI FIREBASE
+        async function fetchMitra() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Memuat data mitra...</td></tr>';
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                allMitraData = [];
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    
+                    // Ekstrak data yang sama dengan index.html + properti langganan
+                    allMitraData.push({
+                        uid: data.uid || docSnap.id,
+                        namaOwner: data.namaLengkap || data.namaDepan + (data.namaBelakang ? ' ' + data.namaBelakang : '') || 'Mitra Sitenexs',
+                        namaToko: data.bisnis?.nama || 'Bisnis Sitenexs',
+                        paket: data.paketLangganan || 'Basic', // Default Basic jika belum ada di DB
+                        status: data.statusLangganan || 'Aktif', // Default Aktif
+                        expired: data.expiredAt || '2099-12-31'
+                    });
+                });
+
+                renderTable(allMitraData);
+            } catch (error) {
+                console.error("Gagal memuat data:", error);
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat data database.</td></tr>';
+            }
+        }
+
+        // RENDER DATA KE TABEL
+        function renderTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            let aktif = 0, pro = 0, expiredList = 0;
+
+            if(data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Tidak ada data mitra ditemukan.</td></tr>';
+                return;
+            }
+
+            data.forEach(mitra => {
+                if(mitra.status === 'Aktif') aktif++;
+                if(mitra.paket === 'Pro' && mitra.status === 'Aktif') pro++;
+                if(mitra.status === 'Expired') expiredList++;
+
+                // URL Avatar dari Supabase (sama seperti index.html)
+                const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(mitra.uid)}/profile-photo`;
+                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(mitra.namaOwner)}&background=random&color=fff`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="user-cell">
+                            <img src="${photoUrl}" alt="Avatar" class="user-avatar" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                            <div class="user-info">
+                                <h5>${mitra.namaToko}</h5>
+                                <p>${mitra.namaOwner}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge ${mitra.paket === 'Pro' ? 'badge-pro' : 'badge-basic'}">${mitra.paket}</span></td>
+                    <td><span class="badge ${mitra.status === 'Aktif' ? 'badge-active' : 'badge-expired'}">${mitra.status}</span></td>
+                    <td style="font-family: monospace; font-size: 0.9rem;">${mitra.expired === '2099-12-31' ? 'Selamanya (Free)' : mitra.expired}</td>
+                    <td>
+                        <button class="btn-action open-edit-btn" data-uid="${mitra.uid}"><i class="fas fa-edit"></i> Edit</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Update Statistik Atas
+            document.getElementById('totalAktif').innerText = aktif;
+            document.getElementById('totalPro').innerText = pro;
+            document.getElementById('totalExpired').innerText = expiredList;
+
+            // Pasang event listener untuk tombol edit
+            document.querySelectorAll('.open-edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const uid = e.currentTarget.getAttribute('data-uid');
+                    openEdit(uid);
+                });
+            });
+        }
+
+        // BUKA MODAL
+        const modal = document.getElementById('editModal');
+        function openEdit(uid) {
+            const mitra = allMitraData.find(m => m.uid === uid);
+            if(mitra) {
+                document.getElementById('editId').value = mitra.uid; // Pakai string UID
+                document.getElementById('editNama').value = mitra.namaToko;
+                document.getElementById('editPaket').value = mitra.paket;
+                document.getElementById('editStatus').value = mitra.status;
+                document.getElementById('editTanggal').value = mitra.expired;
+                modal.classList.add('active');
+            }
+        }
+
+        // TUTUP MODAL
+        document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+
+        // SIMPAN EDIT KE FIREBASE
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btnSave = e.target.querySelector('.btn-save');
+            const originalText = btnSave.innerHTML;
+            btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btnSave.disabled = true;
+
+            const uid = document.getElementById('editId').value;
+            const newPaket = document.getElementById('editPaket').value;
+            const newStatus = document.getElementById('editStatus').value;
+            const newExpired = document.getElementById('editTanggal').value;
+
+            try {
+                // Update dokumen di Firestore
+                const userRef = doc(db, "users", uid);
+                await updateDoc(userRef, {
+                    paketLangganan: newPaket,
+                    statusLangganan: newStatus,
+                    expiredAt: newExpired
+                });
+
+                // Update array lokal agar tidak perlu fetch ulang semua
+                const index = allMitraData.findIndex(m => m.uid === uid);
+                allMitraData[index].paket = newPaket;
+                allMitraData[index].status = newStatus;
+                allMitraData[index].expired = newExpired;
+                
+                modal.classList.remove('active');
+                renderTable(allMitraData); // Render ulang tabel dengan data baru
+                alert("Data langganan berhasil diperbarui!");
+            } catch (error) {
+                console.error("Error update langganan:", error);
+                alert("Gagal menyimpan perubahan. Pastikan Anda memiliki akses Write ke database.");
+            } finally {
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
+            }
+        });
+
+        // PENCARIAN (SEARCH & FILTER)
+        function filterData() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            
+            const filtered = allMitraData.filter(m => {
+                const matchName = m.namaToko.toLowerCase().includes(keyword) || m.namaOwner.toLowerCase().includes(keyword);
+                const matchStatus = status === 'all' || m.status === status;
+                return matchName && matchStatus;
+            });
+            renderTable(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('filterStatus').addEventListener('change', filterData);
+
+        // Panggil fungsi saat halaman dimuat
+        fetchMitra();
+    </script>
+
+</body>
+</html>
