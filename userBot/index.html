@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Super Admin Console — Sitenexs Forum</title>
+    
+    <!-- Meta SEO & Favicon -->
+    <meta name="description" content="Panel Super Admin Terpadu Sitenexs Forum - Mobile & Desktop Optimized.">
+    <link rel="icon" type="image/png" href="https://sitenexs.com/assets/logo/logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Palette & Brand Tokens */
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --primary-ring: rgba(37, 99, 235, 0.15);
+            --border-primary: #bfdbfe;
+            
+            --accent: #10b981;
+            --accent-light: #ecfdf5;
+            
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+
+            /* Surface & Background Colors */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active-bg: rgba(37, 99, 235, 0.15);
+
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+            
+            --border-subtle: #e2e8f0;
+            --border-medium: #cbd5e1;
+            
+            /* Shadows & Radius System */
+            --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+            --shadow-sm: 0 2px 4px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.12);
+
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.25rem;
+            --radius-full: 9999px;
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            display: flex;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button, input, textarea, select { 
+            font-family: inherit; 
+            outline: none; 
+            border: none;
+            font-size: 16px;
+        }
+
+        /* ==========================================================================
+           SIDEBAR NAVIGATION (RESPONSIVE)
+           ========================================================================== */
+        .sidebar {
+            width: 270px;
+            max-width: 85vw;
+            background: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 1200;
+            transform: translate3d(-100%, 0, 0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+            will-change: transform;
+        }
+
+        .sidebar.active { transform: translate3d(0, 0, 0); }
+
+        .sidebar-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .sidebar-brand img {
+            width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-title { font-size: 0.95rem; font-weight: 800; color: #fff; line-height: 1.2; letter-spacing: -0.01em; }
+        .sidebar-sub { font-size: 0.68rem; color: var(--sidebar-text); font-weight: 600; display: block; }
+
+        .sidebar-close-btn {
+            background: rgba(255, 255, 255, 0.05); color: var(--sidebar-text); font-size: 1.1rem; cursor: pointer;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-md); transition: var(--transition);
+        }
+        .sidebar-close-btn:active { color: #fff; background: rgba(255, 255, 255, 0.15); }
+
+        .sidebar-menu { padding: 1rem 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; overflow-y: auto; }
+        .menu-label {
+            font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 0.5rem 0.75rem 0.25rem;
+        }
+        .nav-link {
+            display: flex; align-items: center; gap: 0.85rem;
+            padding: 0.75rem 1rem; border-radius: var(--radius-md);
+            color: var(--sidebar-text); font-size: 0.88rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition); min-height: 46px;
+        }
+        .nav-link i { font-size: 1.05rem; width: 22px; text-align: center; }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35); }
+
+        .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2); }
+        .btn-open-forum {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.08); color: #fff; padding: 0.75rem; border-radius: var(--radius-md);
+            font-size: 0.82rem; font-weight: 700; transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 44px;
+        }
+        .btn-open-forum:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            z-index: 1150; display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
+        @media (min-width: 1025px) {
+            .sidebar { transform: translate3d(0, 0, 0); width: 270px; }
+            .sidebar-close-btn { display: none; }
+            .main-wrapper { margin-left: 270px; }
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT WRAPPER & TOPBAR
+           ========================================================================== */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; transition: var(--transition); }
+
+        .topbar {
+            height: 64px; background: var(--bg-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.25rem;
+            box-shadow: var(--shadow-xs);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+        .burger-btn {
+            background: var(--bg-body); font-size: 1.1rem; color: var(--text-main); cursor: pointer;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-md); transition: var(--transition); border: 1px solid var(--border-subtle); flex-shrink: 0;
+        }
+        .burger-btn:active { background: var(--border-subtle); }
+        @media (min-width: 1025px) { .burger-btn { display: none; } }
+
+        .page-title { 
+            font-size: 1.05rem; font-weight: 800; color: var(--text-main); 
+            letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .badge-admin-top {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--danger-light); color: var(--danger);
+            border: 1px solid #fca5a5; font-size: 0.7rem; font-weight: 800;
+            padding: 0.35rem 0.75rem; border-radius: var(--radius-full); flex-shrink: 0;
+        }
+        @media (max-width: 480px) {
+            .badge-admin-top span { display: none; }
+            .badge-admin-top { padding: 0.35rem 0.5rem; }
+        }
+
+        .content-area { padding: 1.25rem 1rem; flex: 1; max-width: 1280px; margin: 0 auto; width: 100%; }
+        @media (min-width: 768px) {
+            .topbar { height: 70px; padding: 0 2rem; }
+            .page-title { font-size: 1.2rem; }
+            .content-area { padding: 2rem; }
+        }
+
+        /* TAB VIEWS */
+        .tab-view { display: none; animation: fadeIn 0.2s ease-out; }
+        .tab-view.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==========================================================================
+           REUSABLE CARDS, STATS & FORMS
+           ========================================================================== */
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl); padding: 1.25rem; box-shadow: var(--shadow-sm);
+            margin-bottom: 1.25rem; width: 100%; transition: var(--transition); overflow: hidden;
+        }
+        .card-header {
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+            margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle);
+        }
+        .card-title { font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+        .card-title i { color: var(--primary); }
+
+        /* STATS CARDS */
+        .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.25rem; width: 100%; }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl); padding: 1rem 1.25rem;
+            display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow-xs);
+        }
+        .stat-icon {
+            width: 44px; height: 44px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;
+        }
+        .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+        .stat-icon.green { background: var(--accent-light); color: var(--accent); }
+        .stat-info { display: flex; flex-direction: column; min-width: 0; }
+        .stat-value { font-size: 1.25rem; font-weight: 800; line-height: 1.1; color: var(--text-main); }
+        .stat-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; gap: 0.75rem; }
+        }
+
+        .admin-grid { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; align-items: start; width: 100%; }
+        @media (max-width: 1024px) { .admin-grid { grid-template-columns: 1fr; gap: 1.25rem; } }
+
+        /* FORM CONTROLS */
+        .form-group { margin-bottom: 1rem; width: 100%; }
+        .form-label {
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem;
+            font-size: 0.78rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;
+        }
+        .form-control, .form-select {
+            width: 100%; padding: 0.65rem 0.9rem; border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md); font-size: 0.85rem; font-family: inherit; background: #fff;
+            color: var(--text-main); transition: var(--transition); min-height: 44px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-ring); background: #fff;
+        }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; width: 100%; }
+        @media (max-width: 640px) { .row-2 { grid-template-columns: 1fr; gap: 0.75rem; } }
+
+        /* BUTTON SYSTEM */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.65rem 1.25rem; font-size: 0.82rem; font-weight: 700;
+            border-radius: var(--radius-full); cursor: pointer; transition: var(--transition);
+            white-space: nowrap; border: 1px solid transparent; min-height: 44px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--bg-body); border-color: var(--border-medium); color: var(--text-main); }
+        .btn-secondary:hover { background: var(--border-subtle); }
+        .btn-success { background: var(--accent); color: #fff; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-danger-sm { 
+            background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; 
+            font-size: 0.72rem; padding: 0.35rem 0.75rem; border-radius: var(--radius-sm); font-weight: 700; min-height: 34px;
+        }
+
+        /* USER PICKER (VIEW 1) */
+        .user-picker-wrapper { position: relative; margin-bottom: 0.85rem; width: 100%; }
+        .user-picker-input-group {
+            display: flex; align-items: center; background: #fff;
+            border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md);
+            padding: 0.45rem 0.85rem; gap: 0.65rem; transition: var(--transition); box-shadow: var(--shadow-xs); cursor: pointer; min-height: 46px;
+        }
+        .user-picker-input-group:focus-within, .user-picker-input-group.active { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-ring); }
+        .user-picker-search-input { width: 100%; border: none; outline: none; background: transparent; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+        
+        .user-dropdown-menu {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #ffffff;
+            border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+            max-height: 240px; overflow-y: auto; z-index: 1050; display: none; padding: 0.35rem 0;
+        }
+        .user-dropdown-menu.show { display: block; }
+        .user-dropdown-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.95rem;
+            border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: var(--transition); min-height: 48px;
+        }
+        .user-dropdown-item:hover, .user-dropdown-item.selected { background: var(--primary-light); }
+        .user-item-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
+        .user-item-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #e2e8f0; }
+        .user-item-name { font-weight: 800; font-size: 0.82rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .selected-user-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1.5px solid var(--border-primary);
+            border-radius: var(--radius-lg); padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+            margin-top: 0.65rem; box-shadow: var(--shadow-xs); width: 100%;
+        }
+        .selected-user-main { display: flex; align-items: center; gap: 0.75rem; min-width: 0; flex: 1; }
+        .selected-user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: var(--shadow-xs); }
+        .selected-verif-icon { position: absolute; bottom: -2px; right: -2px; width: 15px; height: 15px; background: #fff; border-radius: 50%; }
+        .selected-user-name { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
+        .selected-user-uid-box { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; color: var(--text-muted); font-family: monospace; }
+        .btn-copy-uid { background: #fff; border: 1px solid var(--border-medium); border-radius: var(--radius-sm); padding: 0.2rem 0.5rem; font-size: 0.62rem; cursor: pointer; font-weight: 700; min-height: 26px; }
+
+        .switch-container {
+            display: flex; align-items: center; justify-content: space-between; background: var(--bg-body);
+            border: 1px solid var(--border-subtle); padding: 0.75rem 1rem; border-radius: var(--radius-md); cursor: pointer; width: 100%; min-height: 48px;
+        }
+        .switch-slider {
+            width: 40px; height: 22px; background-color: var(--border-medium); border-radius: 20px; position: relative; transition: var(--transition); flex-shrink: 0;
+        }
+        .switch-slider::before {
+            content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background-color: white; top: 3px; left: 3px; transition: var(--transition);
+        }
+        .switch-input:checked + .switch-slider { background-color: var(--primary); }
+        .switch-input:checked + .switch-slider::before { transform: translateX(18px); }
+
+        .upload-area {
+            border: 2px dashed var(--border-medium); border-radius: var(--radius-lg); padding: 1rem; text-align: center; background: #fafafa; cursor: pointer; transition: var(--transition);
+        }
+        .upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+        .preview-img-container { position: relative; margin-top: 0.75rem; display: none; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle); }
+        .preview-img-container img { width: 100%; max-height: 200px; object-fit: cover; }
+        .btn-remove-img { position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(15, 23, 42, 0.8); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; }
+
+        /* LIVE PREVIEW & FORUM CARDS */
+        .preview-wrapper { background: #f1f5f9; border: 1.5px dashed var(--border-medium); border-radius: var(--radius-lg); padding: 0.85rem; width: 100%; }
+        .post-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-xs); width: 100%; }
+        .post-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.65rem; gap: 0.5rem; }
+        .post-author { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+        .post-author-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .author-name { font-weight: 800; font-size: 0.85rem; color: var(--text-main); }
+        .member-verification-icon, .verified-icon { width: 14px; height: 14px; object-fit: contain; flex-shrink: 0; }
+        .post-badge { font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+        .badge-pengumuman { background: #fef2f2; color: #ef4444; border-color: #fca5a5; }
+        .badge-tips { background: #fffbeb; color: #d97706; border-color: #fcd34d; }
+        .badge-bug { background: #faf5ff; color: #7e22ce; border-color: #d8b4fe; }
+        .post-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.4rem; line-height: 1.35; color: var(--text-main); word-break: break-word; }
+        .post-content { font-size: 0.8rem; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+        .post-image-prev { width: 100%; max-height: 190px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 0.4rem; }
+
+        /* RECENT POSTS LIST */
+        .recent-posts-list { display: flex; flex-direction: column; gap: 0.6rem; max-height: 300px; overflow-y: auto; padding-right: 0.2rem; }
+        .post-item-row { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: #fff; transition: var(--transition); }
+        .post-item-row:hover { border-color: var(--border-medium); box-shadow: var(--shadow-xs); }
+        .post-item-title { font-size: 0.78rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .post-item-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+        /* ==========================================================================
+           VIEW 2: LIKES & PRIORITY MANAGEMENT
+           ========================================================================== */
+        .global-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1.5px solid var(--border-primary); }
+        .desktop-table { width: 100%; border-collapse: collapse; }
+        .desktop-table th, .desktop-table td { padding: 0.95rem; text-align: left; border-bottom: 1px solid var(--border-subtle); }
+        .desktop-table th { background: var(--bg-body); font-weight: 800; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-like { display: inline-flex; align-items: center; gap: 0.35rem; background: #fee2e2; color: #ef4444; padding: 0.25rem 0.65rem; border-radius: 999px; font-weight: 800; font-size: 0.78rem; }
+        .badge-priority { display: inline-flex; align-items: center; gap: 0.35rem; background: #fef3c7; color: #d97706; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.68rem; font-weight: 800; margin-top: 0.25rem; }
+
+        .mobile-card-container { display: none; }
+        .mobile-post-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-xs); }
+        .mobile-post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+        .mobile-post-action { display: flex; flex-direction: column; gap: 0.65rem; border-top: 1px dashed var(--border-subtle); padding-top: 0.75rem; margin-top: 0.75rem; }
+        .mobile-action-row { display: flex; gap: 0.5rem; width: 100%; align-items: center; }
+
+        @media (max-width: 768px) {
+            .desktop-table { display: none; }
+            .mobile-card-container { display: block; }
+            .global-action { flex-direction: column; align-items: stretch; }
+            .global-action > div:last-child { width: 100%; max-width: none; }
+        }
+
+        /* ==========================================================================
+           VIEW 3: BOT MANAGER & INTERACTIVE FEED
+           ========================================================================== */
+        .bot-control-panel {
+            background: var(--bg-card); border: 1.5px solid var(--border-primary); border-radius: var(--radius-xl);
+            padding: 1rem 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-xs); position: sticky; top: 72px; z-index: 90;
+        }
+        .custom-select-trigger {
+            display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1.5px solid var(--primary);
+            border-radius: var(--radius-md); padding: 0.65rem 0.95rem; background: var(--primary-light); cursor: pointer; min-height: 46px;
+        }
+        .selected-display { display: flex; align-items: center; gap: 0.65rem; font-size: 0.85rem; font-weight: 800; color: var(--primary-dark); }
+        .selected-display img:not(.verified-icon) { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        
+        .custom-select-dropdown {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg); z-index: 100; box-shadow: var(--shadow-lg); display: none; flex-direction: column; overflow: hidden;
+        }
+        .custom-select-dropdown.active { display: flex; }
+        .options-list { max-height: 220px; overflow-y: auto; }
+        .custom-select-option { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; font-size: 0.82rem; font-weight: 700; border-bottom: 1px solid var(--border-subtle); min-height: 48px; }
+        .custom-select-option:hover { background: var(--primary-light); }
+        .custom-select-option img:not(.verified-icon) { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+        .create-post-box {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);
+            padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; cursor: pointer; box-shadow: var(--shadow-xs); width: 100%; min-height: 54px; transition: var(--transition);
+        }
+        .create-post-box:hover { border-color: var(--border-medium); box-shadow: var(--shadow-sm); }
+        .create-post-box img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .create-post-input { flex: 1; background: var(--bg-body); padding: 0.6rem 1rem; border-radius: var(--radius-full); color: var(--text-muted); font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .admin-post-list { display: flex; flex-direction: column; gap: 1.25rem; }
+        .admin-post-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 1.1rem; box-shadow: var(--shadow-xs); }
+        
+        .action-bar { display: flex; align-items: center; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); padding: 0.4rem 0; margin-bottom: 0.85rem; gap: 0.5rem; }
+        .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 800; padding: 0.5rem; border-radius: var(--radius-md); cursor: pointer; min-height: 40px; transition: var(--transition); }
+        .action-btn:hover { background: var(--bg-body); color: var(--text-main); }
+        .action-btn.liked { color: var(--primary); background: var(--primary-light); }
+
+        .existing-comments { background: var(--bg-body); border-radius: var(--radius-md); padding: 0.85rem; margin-bottom: 0.85rem; border: 1px solid var(--border-subtle); max-height: 220px; overflow-y: auto; }
+        .comment-item { display: flex; gap: 0.65rem; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+        .comment-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .comment-item-img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .comment-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.45; }
+
+        .fast-comment-form { display: flex; gap: 0.65rem; align-items: flex-start; }
+        .active-persona-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); flex-shrink: 0; }
+        .fast-comment-input { width: 100%; border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.6rem 0.85rem; font-size: 0.82rem; resize: vertical; min-height: 44px; }
+
+        /* ==========================================================================
+           MODALS & OVERLAYS
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999;
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.25s ease; padding: 0;
+        }
+        @media (min-width: 640px) {
+            .modal-overlay { align-items: center; padding: 1.25rem; }
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background: #fff; width: 100%; max-width: 500px; 
+            border-top-left-radius: var(--radius-xl); border-top-right-radius: var(--radius-xl); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+            padding: 1.35rem 1.25rem 1.5rem; transform: translate3d(0, 100%, 0); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-lg);
+            max-height: 85vh; max-height: 85dvh; overflow-y: auto; will-change: transform;
+        }
+        @media (min-width: 640px) {
+            .modal-content { border-radius: var(--radius-xl); transform: translate3d(0, 20px, 0); }
+        }
+        .modal-overlay.active .modal-content { transform: translate3d(0, 0, 0); }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; }
+        .modal-header h3 { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+        .close-modal { background: var(--bg-body); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: var(--transition); }
+        .close-modal:hover { color: var(--text-main); background: var(--border-subtle); }
+
+        .overlay-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: var(--transition); text-align: center; padding: 1rem;
+        }
+        .overlay-loader.active { visibility: visible; opacity: 1; }
+        .spinner { font-size: 2.8rem; color: var(--primary); animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #autoLikeTicker {
+            position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); color: #fff;
+            padding: 0.8rem 1.15rem; border-radius: var(--radius-lg); font-size: 0.8rem; font-weight: 700; z-index: 999;
+            display: none; box-shadow: var(--shadow-lg); align-items: center; gap: 0.65rem; border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        @media (min-width: 640px) {
+            #autoLikeTicker { left: auto; right: 24px; bottom: 24px; max-width: 380px; }
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <img src="https://sitenexs.com/assets/logo/logo.png" alt="Sitenexs Logo" onerror="this.src='https://ui-avatars.com/api/?name=Sitenexs&background=2563eb&color=fff'">
+                <div>
+                    <span class="sidebar-title">Sitenexs Forum</span>
+                    <span class="sidebar-sub">Super Admin Console</span>
+                </div>
+            </a>
+            <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu"><i class="fas fa-times"></i></button>
+        </div>
+
+        <nav class="sidebar-menu">
+            <span class="menu-label">Modul Admin</span>
+            
+            <div class="nav-link active" onclick="switchTab('view-posting', 'Posting Console Atas Nama User', this)">
+                <i class="fas fa-user-pen"></i>
+                <span>Posting Console</span>
+            </div>
+            
+            <div class="nav-link" onclick="switchTab('view-likes', 'Kelola Like & Prioritas', this)">
+                <i class="fas fa-heart"></i>
+                <span>Kelola Like & Prioritas</span>
+            </div>
+            
+            <div class="nav-link" onclick="switchTab('view-bot', 'Akun Bot & Pengelola Feed', this)">
+                <i class="fas fa-robot"></i>
+                <span>Akun Bot & Manager</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="https://sitenexs.com/community" target="_blank" class="btn-open-forum">
+                <i class="fas fa-external-link-alt"></i> Buka Forum Utama
+            </a>
+        </div>
+    </aside>
+
+    <!-- OVERLAY SIDEBAR MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+        
+        <!-- HEADER TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="burger-btn" id="burgerBtn" aria-label="Buka Menu"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title" id="pageTitle">Posting Console Atas Nama User</h1>
+            </div>
+            <span class="badge-admin-top">
+                <i class="fas fa-user-shield"></i> <span>Super Admin</span>
+            </span>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="content-area">
+
+            <!-- STATISTIK RINGKASAN GLOBAL -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statUserCount">0</span>
+                        <span class="stat-label">User Terdaftar</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-comments"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="statPostCount">0</span>
+                        <span class="stat-label">Total Diskusi</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================================================
+               TAB VIEW 1: POSTING CONSOLE
+               ========================================================================== -->
+            <section id="view-posting" class="tab-view active">
+                <div class="admin-grid">
+
+                    <!-- KOLOM KIRI: FORM ATAS NAMA USER -->
+                    <div class="left-col">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">
+                                    <i class="fas fa-user-pen"></i> Buat Post Atas Nama User
+                                </h2>
+                                <button type="button" id="btnReloadUsers" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.72rem; min-height: 34px;">
+                                    <i class="fas fa-sync-alt"></i> Reload
+                                </button>
+                            </div>
+
+                            <form id="adminPostForm">
+                                <!-- CUSTOM USER PICKER -->
+                                <div class="form-group">
+                                    <div class="form-label">
+                                        <span>Pilih Pengguna Terdaftar:</span>
+                                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary);">Pencarian Otomatis</span>
+                                    </div>
+
+                                    <div class="user-picker-wrapper">
+                                        <div class="user-picker-input-group" id="userPickerGroup">
+                                            <i class="fas fa-search" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+                                            <input type="text" id="userSearchInput" class="user-picker-search-input" placeholder="Cari nama atau UID..." autocomplete="off">
+                                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: var(--text-muted);"></i>
+                                        </div>
+
+                                        <div class="user-dropdown-menu" id="userDropdownMenu"></div>
+                                    </div>
+
+                                    <!-- CARD USER TERPILIH -->
+                                    <div class="selected-user-card" id="selectedUserCard">
+                                        <div class="selected-user-main">
+                                            <div style="position: relative; flex-shrink: 0;">
+                                                <img id="selectedUserAvatar" src="https://ui-avatars.com/api/?name=User&background=cbd5e1&color=fff" class="selected-user-avatar" alt="Avatar">
+                                                <img id="selectedVerifBadge" src="https://sitenexs.com/assets/logo/verified.png" class="selected-verif-icon" style="display: none;" alt="Verified">
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                                <span style="font-size: 0.6rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em;">Akun Terpilih</span>
+                                                <div class="selected-user-name" id="selectedUserName">Belum ada user terpilih</div>
+                                                <div class="selected-user-uid-box">
+                                                    <span id="selectedUserUid" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">Pilih pengguna</span>
+                                                    <button type="button" class="btn-copy-uid" id="btnCopyUid" onclick="copyCurrentUid()"><i class="far fa-copy"></i> Copy</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.7rem; min-height: 32px;" onclick="focusUserSearch()">
+                                            <i class="fas fa-exchange-alt"></i> Ganti
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- MANUAL OVERRIDE ACCORDION -->
+                                <div style="margin-top: 0.85rem;">
+                                    <button type="button" style="background: transparent; color: var(--primary); font-size: 0.78rem; font-weight: 800; cursor: pointer; padding: 0.2rem 0;" onclick="toggleManualFields()">
+                                        <i class="fas fa-sliders-h"></i> <span id="manualToggleText">Detail Manual / Edit Custom</span>
+                                    </button>
+                                </div>
+
+                                <div id="manualFieldsWrapper" style="display: none; margin-top: 0.65rem;">
+                                    <div class="row-2">
+                                        <div class="form-group">
+                                            <label class="form-label">User UID:</label>
+                                            <input type="text" id="targetUid" class="form-control" placeholder="UID Firestore" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Nama Penulis:</label>
+                                            <input type="text" id="targetPenulis" class="form-control" placeholder="Nama Lengkap" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- VERIFICATION SWITCH -->
+                                <div class="form-group" style="margin-top: 0.85rem;">
+                                    <label class="switch-container">
+                                        <span style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 700;">
+                                            <img src="https://sitenexs.com/assets/logo/verified.png" alt="Verified" style="width: 15px;">
+                                            Status Verifikasi (Centang Biru)
+                                        </span>
+                                        <input type="checkbox" id="targetIsVerified" class="switch-input" style="display:none;">
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+
+                                <hr style="border: 0; border-top: 1px dashed var(--border-subtle); margin: 1rem 0;">
+
+                                <!-- KONTEN POSTINGAN -->
+                                <div class="form-group">
+                                    <label class="form-label">Kategori Diskusi:</label>
+                                    <select id="postCategory" class="form-select" required>
+                                        <option value="">-- Pilih Kategori --</option>
+                                        <option value="Pengumuman">Pengumuman (Official)</option>
+                                        <option value="Sitenexs POS">Sitenexs POS</option>
+                                        <option value="QR Order">QR Order</option>
+                                        <option value="Tips Bisnis">Tips Bisnis</option>
+                                        <option value="Lapor Bug">Lapor Bug / Kendala</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Judul Diskusi:</label>
+                                    <input type="text" id="postTitle" class="form-control" placeholder="Contoh: Cara setting printer bluetooth?" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Isi Pesan Diskusi:</label>
+                                    <textarea id="postContent" class="form-control" rows="4" placeholder="Tuliskan pertanyaan atau pesan..." required></textarea>
+                                </div>
+
+                                <!-- UPLOAD GAMBAR -->
+                                <div class="form-group">
+                                    <label class="form-label">Lampiran Foto (Opsional):</label>
+                                    <input type="file" id="postImage" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+                                    
+                                    <div class="upload-area" onclick="document.getElementById('postImage').click()">
+                                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: var(--primary);"></i>
+                                        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin-top: 0.2rem;">Klik untuk unggah gambar</div>
+                                        <div style="font-size: 0.68rem; color: var(--text-muted);">JPG, PNG, WEBP (Maks 5MB)</div>
+                                    </div>
+
+                                    <div class="preview-img-container" id="previewImgWrapper">
+                                        <img id="uploadedImagePreview" src="" alt="Preview Gambar">
+                                        <button type="button" class="btn-remove-img" onclick="removeSelectedImage()"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 1.25rem;">
+                                    <button type="submit" class="btn btn-primary" id="submitAdminBtn" style="width: 100%;">
+                                        <i class="fas fa-paper-plane"></i> Publikasikan Atas Nama User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM KANAN: PREVIEW & MODERASI -->
+                    <div class="right-col">
+                        <!-- PREVIEW POSTINGAN -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title"><i class="fas fa-eye"></i> Live Preview Forum</h2>
+                            </div>
+                            <div class="preview-wrapper">
+                                <article class="post-card">
+                                    <div class="post-header">
+                                        <div class="post-author">
+                                            <img id="prevAvatar" src="https://ui-avatars.com/api/?name=User&background=cbd5e1&color=fff" class="post-author-img" alt="Avatar">
+                                            <div style="display: flex; flex-direction: column;">
+                                                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <span class="author-name" id="prevPenulis">Nama User</span>
+                                                    <img id="prevVerifBadge" src="https://sitenexs.com/assets/logo/verified.png" class="member-verification-icon" style="display: none;" alt="Verified">
+                                                </div>
+                                                <span style="font-size: 0.65rem; color: var(--text-muted);">Baru saja</span>
+                                            </div>
+                                        </div>
+                                        <span class="post-badge" id="prevKategori">Kategori</span>
+                                    </div>
+
+                                    <h3 class="post-title" id="prevTitle">Judul Diskusi...</h3>
+                                    <p class="post-content" id="prevContent">Konten postingan akan tampil secara realtime sesuai input...</p>
+                                    <img id="prevImage" src="" class="post-image-prev" style="display: none;" alt="Preview Attach">
+                                </article>
+                            </div>
+                        </div>
+
+                        <!-- MODERASI POSTINGAN -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title"><i class="fas fa-tasks"></i> Moderasi Post Terbaru</h2>
+                            </div>
+                            <div class="recent-posts-list" id="recentPostsList">
+                                <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 1rem;">
+                                    <i class="fas fa-circle-notch fa-spin"></i> Memuat postingan...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- ==========================================================================
+               TAB VIEW 2: KELOLA LIKE & PRIORITAS
+               ========================================================================== -->
+            <section id="view-likes" class="tab-view">
+                <div class="card global-action">
+                    <div>
+                        <h3 style="font-size: 0.98rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.2rem;">
+                            <i class="fas fa-heart" style="color: var(--primary);"></i> Tambah Like Masal Global
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">
+                            Tambah jumlah like pada <strong>semua postingan</strong> sekaligus dalam satu klik.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.65rem; align-items: center; width: 100%; max-width: 300px;">
+                        <input type="number" id="globalLikeInput" class="form-control" placeholder="Cth: 10" min="1">
+                        <button class="btn btn-success" onclick="addGlobalLikes()" style="flex-shrink: 0;">
+                            <i class="fas fa-plus-circle"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div id="dataContainer">
+                        <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p style="margin-top: 0.85rem; font-weight: 600;">Memuat daftar postingan...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ==========================================================================
+               TAB VIEW 3: AKUN BOT & MANAGER
+               ========================================================================== -->
+            <section id="view-bot" class="tab-view">
+                <!-- PERSONA SELECTOR PANEL -->
+                <div class="bot-control-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; gap: 0.5rem;">
+                        <div style="font-size: 0.82rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-user-secret" style="color: var(--primary);"></i> Bertindak Sebagai Bot:
+                        </div>
+                        <button class="btn btn-primary" style="padding: 0.35rem 0.85rem; font-size: 0.72rem; min-height: 36px;" onclick="openCreateBotModal()">
+                            <i class="fas fa-plus"></i> Buat Bot Baru
+                        </button>
+                    </div>
+
+                    <div style="position: relative; width: 100%;">
+                        <div class="custom-select-trigger" onclick="toggleGlobalDropdown()">
+                            <div class="selected-display" id="global-selected-display">
+                                <img src="https://ui-avatars.com/api/?name=Pilih+Persona&background=cbd5e1&color=fff" alt="Pilih">
+                                <span>-- Pilih Akun (Persona) --</span>
+                            </div>
+                            <i class="fas fa-chevron-down" style="color: var(--primary); font-size: 0.85rem;"></i>
+                        </div>
+                        
+                        <div class="custom-select-dropdown" id="global-dropdown">
+                            <div style="padding: 0.6rem; border-bottom: 1px solid var(--border-subtle); background: var(--bg-body);">
+                                <input type="text" class="form-control" placeholder="Cari nama bot..." onkeyup="filterGlobalOptions(this.value)" onclick="event.stopPropagation()">
+                            </div>
+                            <div class="options-list" id="global-options-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CREATE POST BOX (BOT) -->
+                <div class="create-post-box" onclick="openCreatePostModal()">
+                    <img id="createPostAvatar" src="https://ui-avatars.com/api/?name=Bot&background=cbd5e1&color=fff" alt="Bot Avatar">
+                    <div class="create-post-input" id="createPostPrompt">Pilih akun bot di atas terlebih dahulu...</div>
+                </div>
+
+                <!-- FEED INTERAKTIF BOT -->
+                <div class="admin-post-list" id="adminPostContainer">
+                    <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+                        <p style="margin-top: 0.85rem; font-weight: 600;">Memuat daftar diskusi...</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+       MODALS & OVERLAYS
+       ========================================================================== -->
+
+    <!-- OVERLAY LOADER -->
+    <div class="overlay-loader" id="loader">
+        <i class="fas fa-circle-notch spinner"></i>
+        <h3 style="color: var(--text-main); font-size: 1.1rem; font-weight: 800;" id="loaderTitle">Memproses...</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;" id="loaderDesc">Harap tunggu sebentar.</p>
+    </div>
+
+    <!-- AUTO LIKE TICKER -->
+    <div id="autoLikeTicker">
+        <i class="fas fa-magic" style="color: #10b981;"></i> <span id="tickerText">Auto-like berjalan...</span>
+    </div>
+
+    <!-- MODAL PRIORITAS -->
+    <div class="modal-overlay" id="priorityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-star" style="color: #f59e0b; margin-right: 0.4rem;"></i> Prioritas Postingan</h3>
+                <button class="close-modal" onclick="closePriorityModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalBody">
+                <input type="hidden" id="modalPostId">
+                
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; background: var(--bg-body); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                    <div>
+                        <label style="font-size: 0.82rem; font-weight: 800; margin-bottom: 0;">Status Prioritas Auto-Like</label>
+                        <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">Aktifkan untuk menambah Like otomatis.</p>
+                    </div>
+                    <label class="switch-container" style="width: auto; padding: 0; background: transparent; border: none; min-height: auto;">
+                        <input type="checkbox" id="togglePriority" class="switch-input" style="display:none;">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group" style="border-top: 1px dashed var(--border-subtle); padding-top: 1rem;">
+                    <label class="form-label">Auto-Komentar Massal Semua Akun</label>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Generate komentar otomatis dari <strong>seluruh pengguna</strong> terdaftar.</p>
+                    <button class="btn btn-primary" style="width: 100%; font-size: 0.8rem;" onclick="generateMassComments()">
+                        <i class="fas fa-comments"></i> Generate Komentar Semua Akun
+                    </button>
+                </div>
+
+                <div class="form-group" style="border-top: 1px dashed var(--border-subtle); padding-top: 1rem;">
+                    <label class="form-label">Pengaturan Interval Waktu</label>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">Like bertambah otomatis sesuai interval jam/menit.</p>
+                    
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.72rem; font-weight: 700;">Jumlah Like</label>
+                            <input type="number" id="autoLikeCount" class="form-control" value="1" min="1">
+                        </div>
+                        <div style="font-weight: 800; color: var(--text-muted); margin-top: 1rem; font-size: 0.75rem;">PER</div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.72rem; font-weight: 700;">Interval (Menit)</label>
+                            <input type="number" id="autoLikeInterval" class="form-control" value="5" min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.65rem; margin-top: 1.25rem;">
+                    <button class="btn btn-secondary" onclick="closePriorityModal()">Batal</button>
+                    <button class="btn btn-success" onclick="savePriorityConfig()"><i class="fas fa-save"></i> Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BUAT AKUN BOT -->
+    <div class="modal-overlay" id="createBotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Buat Akun Bot Baru</h3>
+                <button class="close-modal" type="button" onclick="closeCreateBotModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="createBotForm" onsubmit="submitNewBot(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Bot</label>
+                    <input type="email" id="botEmail" class="form-control" placeholder="contoh: bot.budi@sitenexs.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="botPassword" class="form-control" placeholder="Minimal 6 karakter" required minlength="6">
+                </div>
+                <div class="row-2">
+                    <div class="form-group">
+                        <label class="form-label">Nama Depan</label>
+                        <input type="text" id="botFirstName" class="form-control" placeholder="Budi" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Belakang</label>
+                        <input type="text" id="botLastName" class="form-control" placeholder="Santoso">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 0.3rem; margin-bottom: 1.25rem;">
+                    <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer;">
+                        <input type="checkbox" id="botVerified" style="width: 18px; height: 18px;">
+                        <span style="font-size: 0.8rem; font-weight: 700;">Centang Biru (Verified)</span>
+                    </label>
+                </div>
+                <button type="submit" id="btnSubmitBot" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Daftarkan Akun Bot
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL BUAT POSTINGAN BOT -->
+    <div class="modal-overlay" id="createPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Buat Post Diskusi (Bot)</h3>
+                <button class="close-modal" type="button" onclick="closeCreatePostModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 1rem; padding: 0.65rem; background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <img id="modalPostAvatar" src="https://ui-avatars.com/api/?name=Bot&background=cbd5e1&color=fff" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar">
+                <span style="font-size: 0.8rem; font-weight: 700;">Memposting sebagai: <span id="modalPostName" style="color: var(--primary);">Bot</span></span>
+            </div>
+            <form id="botPostForm" onsubmit="submitNewBotPost(event)">
+                <div class="form-group">
+                    <label class="form-label">Kategori Diskusi</label>
+                    <select id="botPostCategory" class="form-select" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Sitenexs POS">Sitenexs POS</option>
+                        <option value="QR Order">QR Order</option>
+                        <option value="Tips Bisnis">Tips Bisnis</option>
+                        <option value="Pengumuman">Pengumuman</option>
+                        <option value="Lapor Bug">Lapor Bug / Kendala</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Judul Diskusi</label>
+                    <input type="text" id="botPostTitle" class="form-control" placeholder="Judul singkat & jelas..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Isi Postingan</label>
+                    <textarea id="botPostContent" class="form-control" rows="4" placeholder="Tuliskan pesan..." required></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.65rem; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreatePostModal()">Batal</button>
+                    <button type="submit" id="btnSubmitBotPost" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Publikasikan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ==========================================================================
+       FIREBASE & SUPABASE LOGIC SCRIPT
+       ========================================================================== -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js';
+        import { 
+            getFirestore, collection, getDocs, getDoc, addDoc, doc, setDoc, 
+            updateDoc, deleteDoc, serverTimestamp, query, orderBy, limit, 
+            onSnapshot, arrayUnion, arrayRemove 
+        } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761'
+        };
+
+        // SUPABASE CONFIG
+        const supabaseUrl = 'https://xqcbyamxiekdxytntlno.supabase.co';
+        const supabaseKey = 'sb_publishable_XKHXYrEw2EDdfYH17Uyx6w_k_BtGLQa';
+        const avatarBucket = 'profile-photos';
+        const forumBucket = 'forum-photos';
+
+        // INSTANCES
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const forumCollection = collection(db, "forum_posts");
+        const usersCollection = collection(db, "users");
+
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getAuth(secondaryApp);
+
+        // STATE
+        let cachedUsersList = [];
+        let currentSelectedUser = null; 
+        let activePersona = null;       
+        let postsData = [];             
+        let autoLikeProcessorInterval = null;
+
+        // SIDEBAR & NAVIGATION
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const burgerBtn = document.getElementById('burgerBtn');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        const pageTitle = document.getElementById('pageTitle');
+
+        burgerBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        });
+
+        const closeSidebar = () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        };
+        sidebarCloseBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        window.switchTab = function(tabId, titleText, element) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            if(element) element.classList.add('active');
+            
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            pageTitle.textContent = titleText;
+            
+            closeSidebar();
+        };
+
+        // VIEW 1 ELEMENTS
+        const userSearchInput = document.getElementById('userSearchInput');
+        const userDropdownMenu = document.getElementById('userDropdownMenu');
+        const userPickerGroup = document.getElementById('userPickerGroup');
+        const targetUid = document.getElementById('targetUid');
+        const targetPenulis = document.getElementById('targetPenulis');
+        const targetIsVerified = document.getElementById('targetIsVerified');
+        const postCategory = document.getElementById('postCategory');
+        const postTitle = document.getElementById('postTitle');
+        const postContent = document.getElementById('postContent');
+        const postImage = document.getElementById('postImage');
+        const submitAdminBtn = document.getElementById('submitAdminBtn');
+        const selectedUserName = document.getElementById('selectedUserName');
+        const selectedUserUid = document.getElementById('selectedUserUid');
+        const selectedUserAvatar = document.getElementById('selectedUserAvatar');
+        const selectedVerifBadge = document.getElementById('selectedVerifBadge');
+        const prevAvatar = document.getElementById('prevAvatar');
+        const prevPenulis = document.getElementById('prevPenulis');
+        const prevVerifBadge = document.getElementById('prevVerifBadge');
+        const prevKategori = document.getElementById('prevKategori');
+        const prevTitle = document.getElementById('prevTitle');
+        const prevContent = document.getElementById('prevContent');
+        const prevImage = document.getElementById('prevImage');
+        const statUserCount = document.getElementById('statUserCount');
+        const statPostCount = document.getElementById('statPostCount');
+
+        // IMAGE PREVIEW HANDLERS
+        window.handleImageSelect = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('uploadedImagePreview').src = e.target.result;
+                    document.getElementById('previewImgWrapper').style.display = 'block';
+                    updateLivePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.removeSelectedImage = function() {
+            postImage.value = '';
+            document.getElementById('previewImgWrapper').style.display = 'none';
+            document.getElementById('uploadedImagePreview').src = '';
+            updateLivePreview();
+        };
+
+        window.toggleManualFields = function() {
+            const wrapper = document.getElementById('manualFieldsWrapper');
+            const btnText = document.getElementById('manualToggleText');
+            if (wrapper.style.display === 'none') {
+                wrapper.style.display = 'block';
+                btnText.innerText = 'Sembunyikan Detail Manual';
+            } else {
+                wrapper.style.display = 'none';
+                btnText.innerText = 'Detail Manual / Edit Custom';
+            }
+        };
+
+        window.focusUserSearch = function() {
+            userSearchInput.focus();
+            renderUserDropdown(cachedUsersList);
+            userDropdownMenu.classList.add('show');
+        };
+
+        window.copyCurrentUid = function() {
+            const uid = targetUid.value.trim();
+            if (uid) {
+                navigator.clipboard.writeText(uid);
+                const btn = document.getElementById('btnCopyUid');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+            }
+        };
+
+        // RENDER USER PICKER DROPDOWN
+        function renderUserDropdown(users) {
+            if (users.length === 0) {
+                userDropdownMenu.innerHTML = '<div style="padding: 0.75rem; text-align: center; font-size: 0.75rem; color: var(--text-muted);">Tidak ada pengguna ditemukan</div>';
+                return;
+            }
+
+            let html = '';
+            users.forEach(u => {
+                const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(u.uid)}/profile-photo`;
+                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nama)}&background=2563eb&color=fff`;
+                const isSelected = currentSelectedUser && currentSelectedUser.uid === u.uid;
+                const verifIcon = u.isVerified ? `<img src="https://sitenexs.com/assets/logo/verified.png" class="verified-icon" alt="V">` : '';
+
+                html += `
+                    <div class="user-dropdown-item ${isSelected ? 'selected' : ''}" data-uid="${u.uid}">
+                        <div class="user-item-left">
+                            <img src="${photoUrl}" class="user-item-avatar" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                            <div style="display:flex; flex-direction:column; min-width:0;">
+                                <span class="user-item-name">${u.nama} ${verifIcon}</span>
+                                <span style="font-size:0.62rem; color:var(--text-muted); font-family:monospace;">UID: ${u.uid}</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-check" style="color:var(--primary); font-size:0.8rem; opacity:${isSelected?1:0};"></i>
+                    </div>
+                `;
+            });
+            userDropdownMenu.innerHTML = html;
+
+            document.querySelectorAll('#userDropdownMenu .user-dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const selectedUid = item.getAttribute('data-uid');
+                    const user = cachedUsersList.find(x => x.uid === selectedUid);
+                    if (user) selectUser(user);
+                    userDropdownMenu.classList.remove('show');
+                });
+            });
+        }
+
+        function selectUser(user) {
+            currentSelectedUser = user;
+            targetUid.value = user.uid;
+            targetPenulis.value = user.nama;
+            targetIsVerified.checked = user.isVerified;
+            userSearchInput.value = user.nama;
+
+            selectedUserName.textContent = user.nama;
+            selectedUserUid.textContent = `UID: ${user.uid}`;
+            
+            const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(user.uid)}/profile-photo`;
+            const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=2563eb&color=fff`;
+
+            selectedUserAvatar.src = photoUrl;
+            selectedUserAvatar.onerror = () => { selectedUserAvatar.src = fallbackUrl; };
+            selectedVerifBadge.style.display = user.isVerified ? 'block' : 'none';
+
+            updateLivePreview();
+        }
+
+        userSearchInput.addEventListener('input', (e) => {
+            const queryVal = e.target.value.toLowerCase().trim();
+            userDropdownMenu.classList.add('show');
+            const filtered = cachedUsersList.filter(u => 
+                u.nama.toLowerCase().includes(queryVal) || 
+                u.uid.toLowerCase().includes(queryVal) || 
+                (u.email && u.email.toLowerCase().includes(queryVal))
+            );
+            renderUserDropdown(filtered);
+        });
+
+        userSearchInput.addEventListener('focus', () => {
+            renderUserDropdown(cachedUsersList);
+            userDropdownMenu.classList.add('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (userPickerGroup && !userPickerGroup.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+                userDropdownMenu.classList.remove('show');
+            }
+        });
+
+        function updateLivePreview() {
+            const nameVal = targetPenulis.value.trim() || 'Nama User';
+            const uidVal = targetUid.value.trim();
+            const catVal = postCategory.value || 'Kategori';
+            const titleVal = postTitle.value.trim() || 'Judul Diskusi...';
+            const contentVal = postContent.value.trim() || 'Konten postingan akan tampil di sini secara realtime...';
+            
+            prevPenulis.textContent = nameVal;
+            prevKategori.textContent = catVal;
+            prevTitle.textContent = titleVal;
+            prevContent.textContent = contentVal;
+
+            prevKategori.className = 'post-badge';
+            if (catVal === 'Pengumuman') prevKategori.classList.add('badge-pengumuman');
+            else if (catVal === 'Lapor Bug') prevKategori.classList.add('badge-bug');
+            else if (catVal === 'Tips Bisnis') prevKategori.classList.add('badge-tips');
+
+            prevVerifBadge.style.display = targetIsVerified.checked ? 'inline-block' : 'none';
+
+            if (uidVal) {
+                const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(uidVal)}/profile-photo`;
+                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameVal)}&background=2563eb&color=fff`;
+                prevAvatar.src = photoUrl;
+                prevAvatar.onerror = () => { prevAvatar.src = fallbackUrl; };
+            } else {
+                prevAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameVal)}&background=cbd5e1&color=fff`;
+            }
+
+            if (postImage.files && postImage.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    prevImage.src = e.target.result;
+                    prevImage.style.display = 'block';
+                };
+                reader.readAsDataURL(postImage.files[0]);
+            } else {
+                prevImage.style.display = 'none';
+            }
+        }
+
+        [targetUid, targetPenulis, targetIsVerified, postCategory, postTitle, postContent].forEach(el => {
+            if(el) {
+                el.addEventListener('input', updateLivePreview);
+                el.addEventListener('change', updateLivePreview);
+            }
+        });
+
+        document.getElementById('btnReloadUsers').addEventListener('click', loadUserList);
+
+        // SUBMIT POST ATAS NAMA USER
+        document.getElementById('adminPostForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const uidVal = targetUid.value.trim();
+            const nameVal = targetPenulis.value.trim();
+            const isVerifiedVal = targetIsVerified.checked;
+            const categoryVal = postCategory.value;
+            const titleVal = postTitle.value.trim();
+            const contentVal = postContent.value.trim();
+
+            if (!uidVal || !nameVal || !categoryVal || !titleVal || !contentVal) {
+                alert("Mohon lengkapi seluruh field formulir!");
+                return;
+            }
+
+            submitAdminBtn.disabled = true;
+            submitAdminBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
+
+            try {
+                let imageUrl = null;
+                const file = postImage.files[0];
+
+                if (file) {
+                    submitAdminBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Upload Gambar...';
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
+
+                    const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/${forumBucket}/${fileName}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${supabaseKey}`,
+                            'apikey': supabaseKey,
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+
+                    if (uploadRes.ok) {
+                        imageUrl = `${supabaseUrl}/storage/v1/object/public/${forumBucket}/${fileName}`;
+                    }
+                }
+
+                submitAdminBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Menyimpan...';
+
+                await addDoc(forumCollection, {
+                    authorUid: uidVal,
+                    penulis: nameVal,
+                    isVerified: isVerifiedVal,
+                    kategori: categoryVal,
+                    judul: titleVal,
+                    isi: contentVal,
+                    imageUrl: imageUrl,
+                    likes: [],
+                    comments: [],
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Postingan berhasil dipublikasikan!");
+                document.getElementById('adminPostForm').reset();
+                removeSelectedImage();
+                updateLivePreview();
+            } catch (err) {
+                console.error("Gagal memposting admin:", err);
+                alert("Terjadi kesalahan: " + err.message);
+            } finally {
+                submitAdminBtn.disabled = false;
+                submitAdminBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publikasikan Atas Nama User';
+            }
+        });
+
+        // FETCH ALL USERS
+        async function loadUserList() {
+            userSearchInput.placeholder = "Memuat user...";
+            try {
+                const usersSnap = await getDocs(usersCollection);
+                cachedUsersList = [];
+                let botHtmlOptions = '';
+
+                usersSnap.forEach(docSnap => {
+                    const uData = docSnap.data();
+                    const uid = docSnap.id;
+                    const nama = uData.namaLengkap || (uData.namaDepan ? uData.namaDepan + (uData.namaBelakang ? ' ' + uData.namaBelakang : '') : 'Mitra Sitenexs');
+                    const isVerif = Boolean(uData.isVerified || uData.isFounder || uData.isDeveloper);
+                    const avatar = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(uid)}/profile-photo?t=${Date.now()}`;
+                    const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=2563eb&color=fff`;
+
+                    cachedUsersList.push({
+                        uid,
+                        nama,
+                        isVerified: isVerif,
+                        email: uData.email || '',
+                        avatar,
+                        fallback
+                    });
+                });
+
+                cachedUsersList.sort((a, b) => a.nama.localeCompare(b.nama));
+                statUserCount.innerText = cachedUsersList.length;
+                userSearchInput.placeholder = "Ketik nama atau UID...";
+                renderUserDropdown(cachedUsersList);
+
+                if (cachedUsersList.length > 0 && !currentSelectedUser) {
+                    selectUser(cachedUsersList[0]);
+                }
+
+                // Render Persona Dropdown (View 3)
+                cachedUsersList.forEach(user => {
+                    const safeName = user.nama.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    const verifiedIcon = user.isVerified ? '<img src="https://sitenexs.com/assets/logo/verified.png" class="verified-icon" alt="Verified">' : '';
+                    
+                    botHtmlOptions += `
+                        <div class="custom-select-option" data-name="${safeName.toLowerCase()}" onclick="setGlobalPersona('${user.uid}')">
+                            <img src="${user.avatar}" onerror="this.onerror=null; this.src='${user.fallback}'" alt="${safeName}">
+                            <span style="display: inline-flex; align-items: center;">${safeName} ${verifiedIcon}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('global-options-list').innerHTML = botHtmlOptions;
+
+            } catch (err) {
+                console.error("Gagal memuat daftar user:", err);
+                userSearchInput.placeholder = "Gagal memuat user (Gunakan manual)";
+            }
+        }
+
+        // VIEW 2 & AUTO-LIKE PROCESSOR
+        async function processAutoLikes() {
+            const now = Date.now();
+            let uiNeedsUpdate = false;
+
+            for (let post of postsData) {
+                const conf = post.autoLikeConfig;
+                if (conf && conf.active) {
+                    const elapsedMs = now - conf.lastRun;
+                    const intervalMs = conf.intervalMinutes * 60 * 1000;
+                    
+                    if (elapsedMs >= intervalMs) {
+                        const cycles = Math.floor(elapsedMs / intervalMs);
+                        const likesToAdd = cycles * conf.increment;
+                        
+                        if (likesToAdd > 0) {
+                            let currentLikes = post.likes || [];
+                            for (let i = 0; i < likesToAdd; i++) {
+                                currentLikes.push(`autolike_${now}_${Math.floor(Math.random()*10000)}`);
+                            }
+                            const newLastRun = conf.lastRun + (cycles * intervalMs);
+                            
+                            try {
+                                const docRef = doc(db, "forum_posts", post.id);
+                                await updateDoc(docRef, {
+                                    likes: currentLikes,
+                                    "autoLikeConfig.lastRun": newLastRun
+                                });
+                                
+                                post.likes = currentLikes;
+                                post.autoLikeConfig.lastRun = newLastRun;
+                                uiNeedsUpdate = true;
+                                showTicker(`+${likesToAdd} Like Otomatis: "${post.judul.substring(0, 15)}..."`);
+
+                            } catch(e) {
+                                console.error("Auto-like update failed for", post.id, e);
+                            }
+                        }
+                    }
+                }
+            }
+            if (uiNeedsUpdate) {
+                renderLikesUI();
+            }
+        }
+
+        function startAutoLikeProcessor() {
+            if (autoLikeProcessorInterval) clearInterval(autoLikeProcessorInterval);
+            processAutoLikes(); 
+            autoLikeProcessorInterval = setInterval(processAutoLikes, 15000); 
+        }
+
+        function showTicker(msg) {
+            const ticker = document.getElementById('autoLikeTicker');
+            document.getElementById('tickerText').innerText = msg;
+            ticker.style.display = 'flex';
+            setTimeout(() => { ticker.style.display = 'none'; }, 4000);
+        }
+
+        function renderLikesUI() {
+            let desktopHtml = `
+                <table class="desktop-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 38%;">Info Postingan</th>
+                            <th style="width: 15%;">Kategori</th>
+                            <th style="width: 15%;">Total Like</th>
+                            <th style="width: 32%;">Aksi (Atur Like / Prioritas)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let mobileHtml = `<div class="mobile-card-container">`;
+
+            postsData.forEach(post => {
+                const likeCount = post.likes.length;
+                const isPriority = post.autoLikeConfig && post.autoLikeConfig.active;
+                const priorityBadge = isPriority ? `<div class="badge-priority"><i class="fas fa-star"></i> Prioritas Aktif</div>` : '';
+                
+                desktopHtml += `
+                    <tr>
+                        <td>
+                            <span class="post-title" style="font-size:0.85rem;">${post.judul}</span>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;"><i class="fas fa-user"></i> ${post.penulis}</div>
+                            ${priorityBadge}
+                        </td>
+                        <td><span class="post-badge">${post.kategori}</span></td>
+                        <td><span class="badge-like"><i class="fas fa-heart"></i> ${likeCount}</span></td>
+                        <td>
+                            <div style="display:flex; gap:0.4rem; align-items:center;">
+                                <input type="number" id="input-like-desk-${post.id}" class="form-control" style="width:75px; padding:0.4rem;" value="${likeCount}" min="0">
+                                <button class="btn btn-primary" style="padding:0.4rem 0.75rem; min-height:36px;" onclick="setLikeSingle('${post.id}', 'desk')"><i class="fas fa-save"></i></button>
+                                <button class="btn btn-warning" style="padding:0.4rem 0.75rem; min-height:36px;" onclick="openPriorityModal('${post.id}')"><i class="fas fa-star"></i> Prioritas</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                mobileHtml += `
+                    <div class="mobile-post-card">
+                        <div class="mobile-post-header">
+                            <div style="flex:1; padding-right:0.5rem; min-width:0;">
+                                <div style="font-weight:800; font-size:0.88rem; word-break:break-word;">${post.judul}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;"><i class="fas fa-user"></i> ${post.penulis}</div>
+                                ${priorityBadge}
+                            </div>
+                            <span class="badge-like" style="flex-shrink:0;"><i class="fas fa-heart"></i> ${likeCount}</span>
+                        </div>
+                        <div class="mobile-post-action">
+                            <div class="mobile-action-row">
+                                <input type="number" id="input-like-mob-${post.id}" class="form-control" value="${likeCount}" min="0">
+                                <button class="btn btn-primary" style="min-height:44px;" onclick="setLikeSingle('${post.id}', 'mob')"><i class="fas fa-save"></i> Simpan</button>
+                            </div>
+                            <button class="btn btn-warning" style="width:100%; min-height:44px;" onclick="openPriorityModal('${post.id}')"><i class="fas fa-star"></i> Atur Prioritas</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            desktopHtml += `</tbody></table>`;
+            mobileHtml += `</div>`;
+            document.getElementById('dataContainer').innerHTML = desktopHtml + mobileHtml;
+        }
+
+        window.setLikeSingle = async function(postId, viewType) {
+            const inputEl = document.getElementById(`input-like-${viewType}-${postId}`);
+            if(!inputEl) return;
+            const targetCount = parseInt(inputEl.value);
+            if (isNaN(targetCount) || targetCount < 0) { alert("Masukkan angka yang valid!"); return; }
+
+            showLoader("Memperbarui Like...", "Menyimpan data...");
+            try {
+                const docRef = doc(db, "forum_posts", postId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    let currentLikes = docSnap.data().likes || [];
+                    if (targetCount > currentLikes.length) {
+                        const diff = targetCount - currentLikes.length;
+                        for (let i = 0; i < diff; i++) { currentLikes.push(`dummy_like_${Date.now()}_${Math.floor(Math.random() * 1000)}`); }
+                    } else if (targetCount < currentLikes.length) {
+                        currentLikes = currentLikes.slice(0, targetCount);
+                    }
+                    await updateDoc(docRef, { likes: currentLikes });
+                    const postIndex = postsData.findIndex(p => p.id === postId);
+                    if(postIndex !== -1) postsData[postIndex].likes = currentLikes;
+                    renderLikesUI();
+                }
+            } catch (error) {
+                console.error("Gagal mengupdate like:", error);
+                alert("Terjadi kesalahan sistem.");
+            } finally {
+                hideLoader();
+            }
+        };
+
+        window.addGlobalLikes = async function() {
+            const globalInput = document.getElementById('globalLikeInput').value;
+            const amountToAdd = parseInt(globalInput);
+            if (isNaN(amountToAdd) || amountToAdd <= 0) { alert("Masukkan jumlah like yang valid."); return; }
+            if (!confirm(`Tambahkan ${amountToAdd} like ke SEMUA postingan?`)) return;
+
+            showLoader("Memproses Like Masal...", "Mengupdate postingan...");
+            try {
+                for (let post of postsData) {
+                    const docRef = doc(db, "forum_posts", post.id);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        let currentLikes = docSnap.data().likes || [];
+                        for (let i = 0; i < amountToAdd; i++) {
+                            currentLikes.push(`dummy_like_${Date.now()}_${Math.floor(Math.random() * 10000)}`);
+                        }
+                        await updateDoc(docRef, { likes: currentLikes });
+                        post.likes = currentLikes;
+                    }
+                }
+                document.getElementById('globalLikeInput').value = '';
+                renderLikesUI();
+                alert(`Berhasil menambahkan ${amountToAdd} like!`);
+            } catch (error) {
+                console.error("Gagal penambahan masal:", error);
+                alert("Gagal melakukan proses masal.");
+            } finally {
+                hideLoader();
+            }
+        };
+
+        // PRIORITAS MODAL
+        window.openPriorityModal = function(postId) {
+            const post = postsData.find(p => p.id === postId);
+            if(!post) return;
+            document.getElementById('modalPostId').value = postId;
+            const conf = post.autoLikeConfig || {};
+            document.getElementById('togglePriority').checked = Boolean(conf.active);
+            document.getElementById('autoLikeCount').value = conf.increment || 1;
+            document.getElementById('autoLikeInterval').value = conf.intervalMinutes || 5;
+            document.getElementById('priorityModal').classList.add('active');
+        };
+
+        window.closePriorityModal = function() {
+            document.getElementById('priorityModal').classList.remove('active');
+        };
+
+        window.savePriorityConfig = async function() {
+            const postId = document.getElementById('modalPostId').value;
+            const post = postsData.find(p => p.id === postId);
+            if(!post) return;
+
+            const isActive = document.getElementById('togglePriority').checked;
+            const count = parseInt(document.getElementById('autoLikeCount').value) || 1;
+            const interval = parseInt(document.getElementById('autoLikeInterval').value) || 5;
+
+            showLoader("Menyimpan Pengaturan...", "Memperbarui konfigurasi...");
+            try {
+                const newConfig = {
+                    active: isActive,
+                    increment: count,
+                    intervalMinutes: interval,
+                    lastRun: isActive && (!post.autoLikeConfig || !post.autoLikeConfig.active) ? Date.now() : ((post.autoLikeConfig && post.autoLikeConfig.lastRun) || Date.now())
+                };
+
+                await updateDoc(doc(db, "forum_posts", postId), { autoLikeConfig: newConfig });
+                post.autoLikeConfig = newConfig;
+                closePriorityModal();
+                renderLikesUI();
+                alert("Pengaturan Prioritas disimpan.");
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menyimpan pengaturan.");
+            } finally {
+                hideLoader();
+            }
+        };
+
+        window.generateMassComments = async function() {
+            const postId = document.getElementById('modalPostId').value;
+            const post = postsData.find(p => p.id === postId);
+            if(!post) return;
+
+            if(!confirm("Generate komentar dari SELURUH pengguna terdaftar?")) return;
+            closePriorityModal();
+            showLoader("Membuat Komentar Massal...", "Mengambil data pengguna...");
+
+            try {
+                const usersSnap = await getDocs(usersCollection);
+                let currentComments = post.comments || [];
+                let addedCount = 0;
+
+                const genericTexts = [
+                    "Sangat bermanfaat informasinya kak!",
+                    "Terima kasih sudah berbagi.",
+                    "Wah mantap, sukses selalu bisnisnya!",
+                    "Sangat membantu operasional saya, izin menyimak.",
+                    "Sitenexs memang luar biasa.",
+                    "Semoga berkah usahanya kak.",
+                    "Saya setuju sekali dengan ini.",
+                    "Luar biasa, sangat menginspirasi!",
+                    "Izin terapkan di toko saya kak."
+                ];
+
+                usersSnap.forEach((userDoc) => {
+                    const uData = userDoc.data();
+                    const uName = uData.namaLengkap || uData.namaDepan || "Mitra Sitenexs";
+                    const uVerified = Boolean(uData.isVerified || uData.isFounder || uData.isDeveloper);
+                    const randomComment = genericTexts[Math.floor(Math.random() * genericTexts.length)];
+
+                    currentComments.push({
+                        authorUid: userDoc.id,
+                        penulis: uName,
+                        isVerified: uVerified,
+                        isi: randomComment,
+                        createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000)).toISOString() 
+                    });
+                    addedCount++;
+                });
+
+                await updateDoc(doc(db, "forum_posts", postId), { comments: currentComments });
+                post.comments = currentComments;
+                alert(`Sukses! ${addedCount} komentar ditambahkan.`);
+            } catch (err) {
+                console.error("Gagal generate komentar massal:", err);
+                alert("Terjadi kesalahan.");
+            } finally {
+                hideLoader();
+            }
+        };
+
+        // VIEW 3 BOT MANAGER LOGIC
+        window.toggleGlobalDropdown = function() {
+            document.getElementById('global-dropdown').classList.toggle('active');
+        };
+
+        window.filterGlobalOptions = function(query) {
+            const q = query.toLowerCase();
+            document.querySelectorAll('#global-options-list .custom-select-option').forEach(opt => {
+                opt.style.display = opt.getAttribute('data-name').includes(q) ? 'flex' : 'none';
+            });
+        };
+
+        window.setGlobalPersona = function(uid) {
+            activePersona = cachedUsersList.find(u => u.uid === uid);
+            if (activePersona) {
+                const verifiedIcon = activePersona.isVerified ? '<img src="https://sitenexs.com/assets/logo/verified.png" class="verified-icon" alt="V">' : '';
+                document.getElementById('global-selected-display').innerHTML = `
+                    <img src="${activePersona.avatar}" onerror="this.onerror=null; this.src='${activePersona.fallback}'" alt="${activePersona.nama}">
+                    <span style="display: inline-flex; align-items: center;">${activePersona.nama} ${verifiedIcon}</span>
+                `;
+                document.getElementById('createPostAvatar').src = activePersona.avatar;
+                document.getElementById('createPostAvatar').onerror = function() { this.src = activePersona.fallback; };
+                document.getElementById('createPostPrompt').innerText = `Post sebagai ${activePersona.nama}...`;
+
+                renderBotFeed();
+            }
+            document.getElementById('global-dropdown').classList.remove('active');
+        };
+
+        window.openCreateBotModal = function() { document.getElementById('createBotModal').classList.add('active'); };
+        window.closeCreateBotModal = function() { document.getElementById('createBotModal').classList.remove('active'); };
+
+        window.submitNewBot = async function(event) {
+            event.preventDefault();
+            const btnSubmit = document.getElementById('btnSubmitBot');
+            const email = document.getElementById('botEmail').value.trim();
+            const password = document.getElementById('botPassword').value;
+            const firstName = document.getElementById('botFirstName').value.trim();
+            const lastName = document.getElementById('botLastName').value.trim();
+            const isVerified = document.getElementById('botVerified').checked;
+            const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftarkan...';
+            btnSubmit.disabled = true;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                const newUid = userCredential.user.uid;
+
+                await setDoc(doc(db, "users", newUid), {
+                    uid: newUid,
+                    email: email,
+                    namaDepan: firstName,
+                    namaBelakang: lastName,
+                    namaLengkap: fullName,
+                    isVerified: isVerified,
+                    role: "bot_created",
+                    createdAt: serverTimestamp()
+                });
+
+                await signOut(secondaryAuth);
+                alert(`Berhasil! Akun bot "${fullName}" telah didaftarkan.`);
+                document.getElementById('createBotForm').reset();
+                closeCreateBotModal();
+                await loadUserList();
+            } catch (error) {
+                console.error("Gagal membuat bot:", error);
+                alert("Gagal membuat akun: " + error.message);
+            } finally {
+                btnSubmit.innerHTML = '<i class="fas fa-user-plus"></i> Daftarkan Akun Bot';
+                btnSubmit.disabled = false;
+            }
+        };
+
+        window.openCreatePostModal = function() { 
+            if(!activePersona) {
+                alert("Pilih Akun (Persona) Bot terlebih dahulu!");
+                return;
+            }
+            document.getElementById('modalPostAvatar').src = activePersona.avatar;
+            document.getElementById('modalPostAvatar').onerror = function() { this.src = activePersona.fallback; };
+            document.getElementById('modalPostName').innerText = activePersona.nama;
+            document.getElementById('createPostModal').classList.add('active'); 
+        };
+        window.closeCreatePostModal = function() { document.getElementById('createPostModal').classList.remove('active'); };
+
+        window.submitNewBotPost = async function(event) {
+            event.preventDefault();
+            if (!activePersona) return;
+
+            const btnSubmit = document.getElementById('btnSubmitBotPost');
+            const category = document.getElementById('botPostCategory').value;
+            const title = document.getElementById('botPostTitle').value.trim();
+            const content = document.getElementById('botPostContent').value.trim();
+
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mempublikasikan...';
+            btnSubmit.disabled = true;
+
+            try {
+                await addDoc(collection(db, "forum_posts"), {
+                    authorUid: activePersona.uid,
+                    penulis: activePersona.nama,
+                    isVerified: activePersona.isVerified,
+                    kategori: category,
+                    judul: title,
+                    isi: content,
+                    likes: [],
+                    comments: [],
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('botPostForm').reset();
+                closeCreatePostModal();
+            } catch (err) {
+                console.error("Gagal membuat postingan:", err);
+                alert("Terjadi kesalahan.");
+            } finally {
+                btnSubmit.innerHTML = '<i class="fas fa-paper-plane"></i> Publikasikan';
+                btnSubmit.disabled = false;
+            }
+        };
+
+        // RENDER FEED INTERAKTIF BOT
+        function renderBotFeed() {
+            const container = document.getElementById('adminPostContainer');
+            if (postsData.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:2.5rem 1rem; color:var(--text-muted);">Belum ada diskusi di forum.</div>';
+                return;
+            }
+
+            let htmlString = "";
+            postsData.forEach((post) => {
+                const postId = post.id;
+                const data = post;
+                const waktuString = timeAgo(data.createdAt);
+
+                const authorAvatar = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(data.authorUid)}/profile-photo?t=${Date.now()}`;
+                const authorFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.penulis)}&background=random&color=fff`;
+                const authorVerified = data.isVerified ? `<img src="https://sitenexs.com/assets/logo/verified.png" class="verified-icon" alt="Verified">` : '';
+
+                const likes = data.likes || [];
+                const likeCount = likes.length;
+                const isLikedByActive = activePersona ? likes.includes(activePersona.uid) : false;
+
+                const comments = data.comments || [];
+                let commentsHtml = '';
+                if (comments.length > 0) {
+                    commentsHtml += `<div class="existing-comments">`;
+                    comments.forEach(c => {
+                        const cVerified = c.isVerified ? `<img src="https://sitenexs.com/assets/logo/verified.png" class="verified-icon" alt="V">` : '';
+                        const cAvatar = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(c.authorUid)}/profile-photo?t=${Date.now()}`;
+                        const cFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(c.penulis)}&background=random&color=fff`;
+
+                        commentsHtml += `
+                            <div class="comment-item">
+                                <img src="${cAvatar}" onerror="this.onerror=null; this.src='${cFallback}'" class="comment-item-img" alt="Commenter">
+                                <div style="flex:1;">
+                                    <div style="font-size:0.78rem; font-weight:800; color:var(--text-main); display:flex; align-items:center;">
+                                        ${c.penulis} ${cVerified}
+                                    </div>
+                                    <div class="comment-text">${c.isi}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    commentsHtml += `</div>`;
+                }
+
+                const currentAvatar = activePersona ? activePersona.avatar : 'https://ui-avatars.com/api/?name=Pilih+Persona&background=cbd5e1&color=fff';
+                const currentFallback = activePersona ? activePersona.fallback : currentAvatar;
+                const inputPlaceholder = activePersona ? `Balas sebagai ${activePersona.nama}...` : 'Pilih Akun Bot terlebih dahulu...';
+
+                htmlString += `
+                    <div class="admin-post-card" id="post-${postId}">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.65rem; gap:0.5rem;">
+                            <div style="display:flex; align-items:center; gap:0.65rem; min-width:0;">
+                                <img src="${authorAvatar}" onerror="this.onerror=null; this.src='${authorFallback}'" style="width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0;" alt="Author">
+                                <div style="display:flex; flex-direction:column; min-width:0;">
+                                    <span style="font-size:0.82rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${data.penulis} ${authorVerified}</span>
+                                    <span style="font-size:0.68rem; color:var(--text-muted); font-weight:500;">${waktuString} &bull; ${data.kategori}</span>
+                                </div>
+                            </div>
+                            <button class="btn-danger-sm" onclick="deletePost('${postId}')"><i class="fas fa-trash-alt"></i> Hapus</button>
+                        </div>
+                        
+                        <h3 style="font-size:0.9rem; font-weight:800; margin-bottom:0.35rem; color:var(--text-main); word-break:break-word;">${data.judul}</h3>
+                        <p style="font-size:0.8rem; color:var(--text-main); margin-bottom:0.75rem; line-height:1.45; word-break:break-word;">${data.isi}</p>
+                        
+                        <div class="action-bar">
+                            <button class="action-btn ${isLikedByActive ? 'liked' : ''}" onclick="toggleBotLike('${postId}')">
+                                <i class="${isLikedByActive ? 'fas' : 'far'} fa-thumbs-up"></i> ${likeCount > 0 ? likeCount : 'Suka'}
+                            </button>
+                            <button class="action-btn" onclick="focusComment('${postId}')">
+                                <i class="far fa-comment-alt"></i> ${comments.length > 0 ? comments.length : 'Komentar'}
+                            </button>
+                        </div>
+
+                        ${commentsHtml}
+
+                        <form class="fast-comment-form" onsubmit="submitBotComment(event, '${postId}')">
+                            <img src="${currentAvatar}" onerror="this.onerror=null; this.src='${currentFallback}'" class="active-persona-avatar" alt="Persona">
+                            <div style="flex:1; display:flex; flex-direction:column; gap:0.45rem;">
+                                <textarea id="input-comment-${postId}" class="fast-comment-input" placeholder="${inputPlaceholder}" required ${!activePersona ? 'disabled' : ''}></textarea>
+                                <button type="submit" id="btn-comment-${postId}" class="btn btn-primary" style="align-self:flex-end; font-size:0.75rem; padding:0.4rem 0.9rem; min-height:36px;" ${!activePersona ? 'disabled' : ''}>Kirim</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            });
+            container.innerHTML = htmlString;
+        }
+
+        window.focusComment = function(postId) {
+            const input = document.getElementById(`input-comment-${postId}`);
+            if(input) input.focus();
+        };
+
+        window.toggleBotLike = async function(postId) {
+            if (!activePersona) { alert("Pilih Persona Bot terlebih dahulu!"); return; }
+            const postRef = doc(db, "forum_posts", postId);
+            const postObj = postsData.find(p => p.id === postId);
+            if(!postObj) return;
+
+            const likes = postObj.likes || [];
+            const hasLiked = likes.includes(activePersona.uid);
+
+            try {
+                if (hasLiked) {
+                    await updateDoc(postRef, { likes: arrayRemove(activePersona.uid) });
+                } else {
+                    await updateDoc(postRef, { likes: arrayUnion(activePersona.uid) });
+                }
+            } catch (err) {
+                console.error("Gagal toggle like:", err);
+            }
+        };
+
+        window.submitBotComment = async function(event, postId) {
+            event.preventDefault();
+            if (!activePersona) { alert("Pilih Persona Bot terlebih dahulu!"); return; }
+
+            const postRef = doc(db, "forum_posts", postId);
+            const inputEl = document.getElementById(`input-comment-${postId}`);
+            const btnEl = document.getElementById(`btn-comment-${postId}`);
+            const commentText = inputEl.value.trim();
+            if (!commentText) return;
+
+            btnEl.disabled = true;
+            btnEl.innerText = '...';
+
+            try {
+                const newComment = {
+                    authorUid: activePersona.uid,
+                    penulis: activePersona.nama,
+                    isVerified: activePersona.isVerified,
+                    isi: commentText,
+                    createdAt: new Date().toISOString()
+                };
+
+                await updateDoc(postRef, {
+                    comments: arrayUnion(newComment)
+                });
+            } catch (err) {
+                console.error("Gagal mengirim komentar:", err);
+                alert("Terjadi kesalahan.");
+            } finally {
+                btnEl.disabled = false;
+                btnEl.innerText = 'Kirim';
+                inputEl.value = '';
+            }
+        };
+
+        window.deletePost = async function(postId) {
+            if (confirm("Hapus postingan ini secara permanen dari server?")) {
+                try {
+                    await deleteDoc(doc(db, "forum_posts", postId));
+                } catch (err) {
+                    console.error("Gagal menghapus postingan:", err);
+                    alert("Gagal menghapus postingan: " + err.message);
+                }
+            }
+        };
+
+        // REALTIME MONITORING
+        function startRealtimePosts() {
+            const qRecent = query(forumCollection, orderBy("createdAt", "desc"), limit(30));
+            onSnapshot(qRecent, (snapshot) => {
+                postsData = [];
+                statPostCount.innerText = snapshot.size;
+
+                const recentListEl = document.getElementById('recentPostsList');
+                if (snapshot.empty) {
+                    recentListEl.innerHTML = '<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:1rem;">Belum ada postingan di forum.</div>';
+                } else {
+                    let recentHtml = '';
+                    snapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const id = docSnap.id;
+                        
+                        postsData.push({
+                            id: id,
+                            authorUid: data.authorUid || '',
+                            judul: data.judul || 'Tanpa Judul',
+                            isi: data.isi || '',
+                            penulis: data.penulis || 'Anonim',
+                            isVerified: Boolean(data.isVerified),
+                            kategori: data.kategori || 'Umum',
+                            likes: data.likes || [],
+                            comments: data.comments || [],
+                            createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(),
+                            autoLikeConfig: data.autoLikeConfig || { active: false, increment: 1, intervalMinutes: 5, lastRun: Date.now() }
+                        });
+
+                        recentHtml += `
+                            <div class="post-item-row">
+                                <div style="flex:1; min-width:0;">
+                                    <div class="post-item-title">${data.judul}</div>
+                                    <div class="post-item-sub">
+                                        <span><i class="fas fa-user"></i> ${data.penulis}</span> &bull; <span>${data.kategori}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger-sm" onclick="deletePost('${id}')"><i class="fas fa-trash-alt"></i> Hapus</button>
+                            </div>
+                        `;
+                    });
+                    recentListEl.innerHTML = recentHtml;
+                }
+
+                renderLikesUI();
+                renderBotFeed();
+                startAutoLikeProcessor();
+            });
+        }
+
+        // UTILITY LOADER & TIME AGO
+        function showLoader(title, desc) {
+            document.getElementById('loaderTitle').innerText = title;
+            document.getElementById('loaderDesc').innerText = desc;
+            document.getElementById('loader').classList.add('active');
+        }
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('active');
+        }
+
+        function timeAgo(date) {
+            if (!date) return 'Baru saja';
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "th lalu";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "bln lalu";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "hr lalu";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "j lalu";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m lalu";
+            return "Baru saja";
+        }
+
+        // INITIALIZE APP DATA
+        loadUserList();
+        startRealtimePosts();
+        updateLivePreview();
+    </script>
+</body>
+</html>
