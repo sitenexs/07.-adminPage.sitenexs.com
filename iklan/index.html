@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitenexs — Admin Manajemen Iklan</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://sitenexs.com/assets/logo/logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 0.5rem;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); padding: 1rem 0.5rem; font-size: 0.9rem; }
+        .container { max-width: 750px; margin: 0 auto; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 0.75rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1rem; }
+        .logo-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-title img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+
+        /* Card */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; }
+        .card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; color: var(--primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+
+        /* Form Simple */
+        .form-group { margin-bottom: 0.75rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-main); }
+        .form-control { width: 100%; padding: 0.55rem 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); font-size: 0.85rem; background: #fff; outline: none; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+        textarea.form-control { resize: vertical; min-height: 55px; }
+
+        /* URL Input Group */
+        .url-group { display: flex; gap: 0.35rem; }
+        .url-prefix-select { width: 110px; padding: 0.55rem 0.5rem; border-radius: var(--radius); border: 1px solid var(--border); font-size: 0.82rem; background: #f1f5f9; font-weight: 600; outline: none; cursor: pointer; }
+
+        /* Cropper Box */
+        .cropper-box { display: none; margin-top: 0.5rem; background: #1e293b; border-radius: var(--radius); padding: 0.5rem; }
+        .cropper-container-inner { max-height: 240px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        .cropper-container-inner img { max-width: 100%; display: block; }
+        .crop-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.75rem; color: #94a3b8; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 600; border-radius: var(--radius); cursor: pointer; border: none; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #dc2626; color: #fff; }
+        .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        /* Table */
+        .table-responsive { width: 100%; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; background: #fff; }
+        th, td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        th { font-weight: 700; color: var(--text-muted); background: #f1f5f9; font-size: 0.75rem; text-transform: uppercase; }
+        tr:last-child td { border-bottom: none; }
+        .ad-thumb { width: 75px; height: 45px; object-fit: contain; background: #0f172a; border-radius: 4px; border: 1px solid var(--border); }
+        .badge { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.68rem; background: #eff6ff; color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; margin-top: 0.2rem; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 15px; right: 15px; background: #0f172a; color: #fff; padding: 0.6rem 1rem; border-radius: var(--radius); z-index: 9999; font-size: 0.82rem; font-weight: 600; opacity: 0; transform: translateY(20px); transition: 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-title">
+                <img src="https://sitenexs.com/assets/logo/logo.png" alt="Logo">
+                <span>Sitenexs — Panel Iklan</span>
+            </div>
+            <a href="/" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card">
+            <div class="card-title" id="formTitle"><i class="fas fa-plus-circle"></i> Tambah Iklan</div>
+            <form id="adForm">
+                <input type="hidden" id="adId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div class="form-group">
+                        <label>Judul Iklan</label>
+                        <input type="text" id="judul" required class="form-control" placeholder="Judul iklan...">
+                    </div>
+                    <div class="form-group">
+                        <label>Teks Tombol Aksi</label>
+                        <input type="text" id="actionText" required class="form-control" value="Daftar Sekarang">
+                    </div>
+                </div>
+
+                <!-- Kategori / Tag Dropdown Form Pilihan -->
+                <div class="form-group">
+                    <label>Kategori / Tag Iklan</label>
+                    <select id="tag" required class="form-control">
+                        <option value="Promo">📢 Promo</option>
+                        <option value="Event">📅 Event</option>
+                        <option value="Fitur">⭐ Fitur</option>
+                        <option value="Diskon">🏷️ Diskon</option>
+                        <option value="Penting">⚠️ Penting</option>
+                    </select>
+                </div>
+
+                <!-- Link Tujuan dengan Pilihan Awalan -->
+                <div class="form-group">
+                    <label>Link Tujuan URL / Hash</label>
+                    <div class="url-group">
+                        <select id="urlPrefix" class="url-prefix-select">
+                            <option value="https://">https://</option>
+                            <option value="http://">http://</option>
+                            <option value="#"># (Hash ID)</option>
+                            <option value="">(Tanpa Awalan)</option>
+                        </select>
+                        <input type="text" id="linkPath" required class="form-control" placeholder="contoh: sitenexs.com atau kontak">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Deskripsi Singkat <span style="font-weight: normal; color: var(--text-muted);">(Opsional)</span></label>
+                    <textarea id="deskripsi" class="form-control" placeholder="Keterangan opsional iklan..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Foto / Banner Iklan (Sesuaikan posisi foto tanpa terpotong)</label>
+                    <input type="file" id="imageFile" accept="image/*" class="form-control">
+                    
+                    <!-- Cropper Box -->
+                    <div id="cropperWrapper" class="cropper-box">
+                        <div class="cropper-container-inner">
+                            <img id="imageToCrop" alt="Crop">
+                        </div>
+                        <div class="crop-actions">
+                            <span><i class="fas fa-arrows-alt"></i> Sesuaikan area foto penuh</span>
+                            <button type="button" class="btn btn-secondary btn-sm" id="resetCropBtn">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <button type="submit" class="btn btn-primary btn-sm" id="saveBtn"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="cancelBtn" style="display: none;" onclick="resetForm()">Batal</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Daftar Iklan -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-list"></i> Daftar Iklan Aktif</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Banner</th>
+                            <th>Judul & Info</th>
+                            <th>Tautan</th>
+                            <th style="text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adsTableBody">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;"><i class="fas fa-spinner fa-spin"></i> Memuat...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <span id="toastMsg">Berhasil!</span>
+    </div>
+
+    <!-- Cropper.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- Script Firebase & Supabase & Logic -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const supabaseUrl = 'https://xqcbyamxiekdxytntlno.supabase.co';
+        const supabasePublishableKey = 'sb_publishable_XKHXYrEw2EDdfYH17Uyx6w_k_BtGLQa'; 
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
+
+        const adForm = document.getElementById('adForm');
+        const adsTableBody = document.getElementById('adsTableBody');
+        const formTitle = document.getElementById('formTitle');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const imageFileInput = document.getElementById('imageFile');
+        const cropperWrapper = document.getElementById('cropperWrapper');
+        const imageToCrop = document.getElementById('imageToCrop');
+        
+        let cropper = null;
+
+        imageFileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    cropperWrapper.style.display = 'block';
+                    imageToCrop.src = event.target.result;
+                    
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: NaN,
+                        viewMode: 0,
+                        autoCropArea: 1,
+                        responsive: true,
+                        restore: false,
+                        checkCrossOrigin: false,
+                        checkOrientation: false
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('resetCropBtn').addEventListener('click', function() {
+            if (cropper) cropper.reset();
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toast.className = `toast show ${type}`;
+            toastMsg.textContent = message;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        async function loadAds() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "iklan"));
+                if (querySnapshot.empty) {
+                    adsTableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Belum ada iklan.</td></tr>`;
+                    return;
+                }
+
+                let html = '';
+                querySnapshot.forEach((docSnap) => {
+                    const ad = docSnap.data();
+                    const id = docSnap.id;
+                    
+                    let tagIcon = 'fas fa-bullhorn';
+                    if(ad.tag === 'Event') tagIcon = 'fas fa-calendar-alt';
+                    else if(ad.tag === 'Fitur') tagIcon = 'fas fa-star';
+                    else if(ad.tag === 'Diskon') tagIcon = 'fas fa-tags';
+                    else if(ad.tag === 'Penting') tagIcon = 'fas fa-exclamation-circle';
+
+                    html += `
+                        <tr>
+                            <td><img src="${ad.imageUrl}" class="ad-thumb" onerror="this.src='https://ui-avatars.com/api/?name=Ad&background=2563eb&color=fff&size=100';"></td>
+                            <td>
+                                <strong style="font-size: 0.85rem;">${ad.judul}</strong><br>
+                                <span class="badge"><i class="${tagIcon}"></i> ${ad.tag || 'Promo'}</span>
+                            </td>
+                            <td><a href="${ad.linkUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;"><i class="fas fa-external-link-alt"></i> Buka</a></td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-secondary btn-sm" onclick="editAd('${id}', '${encodeURIComponent(ad.judul)}', '${encodeURIComponent(ad.tag)}', '${encodeURIComponent(ad.linkUrl)}', '${encodeURIComponent(ad.actionText)}', '${encodeURIComponent(ad.deskripsi || '')}', '${encodeURIComponent(ad.imageUrl)}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAd('${id}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                adsTableBody.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                adsTableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red; padding: 1.5rem;">Gagal memuat.</td></tr>`;
+            }
+        }
+
+        adForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const id = document.getElementById('adId').value;
+            const judul = document.getElementById('judul').value;
+            const tag = document.getElementById('tag').value;
+            
+            const prefix = document.getElementById('urlPrefix').value;
+            const path = document.getElementById('linkPath').value.trim();
+            const linkUrl = prefix + path;
+
+            const actionText = document.getElementById('actionText').value;
+            const deskripsi = document.getElementById('deskripsi').value;
+
+            try {
+                let imageUrl = document.getElementById('adId').getAttribute('data-image-url') || '';
+
+                if (imageFileInput.files[0] && cropper) {
+                    // Mengambil hasil crop tanpa paksaan ukuran/aspek rasio agar foto utuh tidak terpotong
+                    const canvas = cropper.getCroppedCanvas();
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.90));
+                    const fileName = `ad_${Date.now()}.jpg`;
+                    const filePath = `banners/${fileName}`;
+
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('ads-images')
+                        .upload(filePath, blob, { upsert: true, contentType: 'image/jpeg' });
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = supabaseClient.storage
+                        .from('ads-images')
+                        .getPublicUrl(filePath);
+
+                    imageUrl = publicUrlData.publicUrl;
+                }
+
+                const adData = { judul, tag, linkUrl, actionText, deskripsi, imageUrl, updatedAt: new Date().toISOString() };
+
+                if (id) {
+                    await updateDoc(doc(db, "iklan", id), adData);
+                    showToast("Berhasil diperbarui!");
+                } else {
+                    adData.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, "iklan"), adData);
+                    showToast("Berhasil ditambahkan!");
+                }
+
+                resetForm();
+                loadAds();
+            } catch (error) {
+                console.error("Gagal:", error);
+                showToast("Gagal menyimpan.", "error");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+            }
+        });
+
+        window.editAd = function(id, judul, tag, linkUrl, actionText, deskripsi, imageUrl) {
+            document.getElementById('adId').value = id;
+            const decodedImageUrl = decodeURIComponent(imageUrl);
+            document.getElementById('adId').setAttribute('data-image-url', decodedImageUrl);
+            document.getElementById('judul').value = decodeURIComponent(judul);
+            
+            document.getElementById('tag').value = decodeURIComponent(tag);
+
+            const decodedUrl = decodeURIComponent(linkUrl);
+            if(decodedUrl.startsWith('https://')) {
+                document.getElementById('urlPrefix').value = 'https://';
+                document.getElementById('linkPath').value = decodedUrl.replace('https://', '');
+            } else if(decodedUrl.startsWith('http://')) {
+                document.getElementById('urlPrefix').value = 'http://';
+                document.getElementById('linkPath').value = decodedUrl.replace('http://', '');
+            } else if(decodedUrl.startsWith('#')) {
+                document.getElementById('urlPrefix').value = '#';
+                document.getElementById('linkPath').value = decodedUrl.replace('#', '');
+            } else {
+                document.getElementById('urlPrefix').value = '';
+                document.getElementById('linkPath').value = decodedUrl;
+            }
+
+            document.getElementById('actionText').value = decodeURIComponent(actionText);
+            document.getElementById('deskripsi').value = decodeURIComponent(deskripsi) === 'null' ? '' : decodeURIComponent(deskripsi);
+
+            if (decodedImageUrl) {
+                cropperWrapper.style.display = 'block';
+                imageToCrop.src = decodedImageUrl;
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: NaN,
+                    viewMode: 0,
+                    autoCropArea: 1,
+                    responsive: true,
+                });
+            } else {
+                cropperWrapper.style.display = 'none';
+            }
+
+            formTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Iklan';
+            saveBtn.innerHTML = '<i class="fas fa-sync"></i> Perbarui';
+            cancelBtn.style.display = 'inline-flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.deleteAd = async function(id) {
+            if (confirm("Hapus iklan ini?")) {
+                try {
+                    await deleteDoc(doc(db, "iklan", id));
+                    showToast("Berhasil dihapus!");
+                    loadAds();
+                } catch (err) {
+                    showToast("Gagal menghapus.", "error");
+                }
+            }
+        }
+
+        window.resetForm = function() {
+            adForm.reset();
+            document.getElementById('adId').value = '';
+            document.getElementById('adId').removeAttribute('data-image-url');
+            document.getElementById('tag').value = 'Promo';
+            document.getElementById('urlPrefix').value = 'https://';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropperWrapper.style.display = 'none';
+            formTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Tambah Iklan';
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+            cancelBtn.style.display = 'none';
+        }
+
+        loadAds();
+    </script>
+</body>
+</html>
