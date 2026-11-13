@@ -19,7 +19,6 @@
 
     <style>
         :root {
-            /* Palette & Brand Tokens */
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --primary-light: #eff6ff;
@@ -35,7 +34,6 @@
             --warning: #f59e0b;
             --warning-light: #fffbeb;
 
-            /* Surface & Background Colors */
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
             --bg-glass: rgba(255, 255, 255, 0.85);
@@ -43,7 +41,6 @@
             --sidebar-bg: #0f172a;
             --sidebar-hover: #1e293b;
             --sidebar-text: #94a3b8;
-            --sidebar-active-bg: rgba(37, 99, 235, 0.15);
 
             --text-main: #0f172a;
             --text-muted: #64748b;
@@ -52,7 +49,6 @@
             --border-subtle: #e2e8f0;
             --border-medium: #cbd5e1;
             
-            /* Shadows & Radius System */
             --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
             --shadow-sm: 0 2px 4px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
             --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
@@ -381,26 +377,40 @@
         .post-item-sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
 
         /* ==========================================================================
-           VIEW 2: LIKES & PRIORITY MANAGEMENT
+           VIEW 2: LIKES, PINNED & AUTO-LIKE MANAGEMENT (Dipercantik & Responsif)
            ========================================================================== */
         .global-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1.5px solid var(--border-primary); }
-        .desktop-table { width: 100%; border-collapse: collapse; }
-        .desktop-table th, .desktop-table td { padding: 0.95rem; text-align: left; border-bottom: 1px solid var(--border-subtle); }
-        .desktop-table th { background: var(--bg-body); font-weight: 800; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .badge-like { display: inline-flex; align-items: center; gap: 0.35rem; background: #fee2e2; color: #ef4444; padding: 0.25rem 0.65rem; border-radius: 999px; font-weight: 800; font-size: 0.78rem; }
-        .badge-priority { display: inline-flex; align-items: center; gap: 0.35rem; background: #fef3c7; color: #d97706; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.68rem; font-weight: 800; margin-top: 0.25rem; }
+        
+        .post-admin-list { display: flex; flex-direction: column; gap: 1rem; }
+        .post-admin-item {
+            background: #fafafa; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+            padding: 1.1rem; display: flex; flex-direction: column; gap: 0.85rem; transition: var(--transition);
+        }
+        .post-admin-item.prioritized {
+            border-color: var(--primary);
+            background: linear-gradient(to bottom, #ffffff, var(--primary-light));
+        }
 
-        .mobile-card-container { display: none; }
-        .mobile-post-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-xs); }
-        .mobile-post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
-        .mobile-post-action { display: flex; flex-direction: column; gap: 0.65rem; border-top: 1px dashed var(--border-subtle); padding-top: 0.75rem; margin-top: 0.75rem; }
-        .mobile-action-row { display: flex; gap: 0.5rem; width: 100%; align-items: center; }
+        .post-admin-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+        .post-admin-title { font-weight: 800; font-size: 0.92rem; color: var(--text-main); }
+        .post-admin-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+        .post-admin-snippet { font-size: 0.8rem; color: var(--text-main); line-height: 1.45; }
 
-        @media (max-width: 768px) {
-            .desktop-table { display: none; }
-            .mobile-card-container { display: block; }
-            .global-action { flex-direction: column; align-items: stretch; }
-            .global-action > div:last-child { width: 100%; max-width: none; }
+        .admin-controls {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
+            padding-top: 0.75rem; border-top: 1px solid var(--border-subtle);
+        }
+        .control-group { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .control-group input[type="number"], .control-group select {
+            padding: 0.35rem 0.5rem; border: 1.5px solid var(--border-medium);
+            border-radius: var(--radius-md); font-size: 0.75rem; text-align: center; background: #fff; color: var(--text-main); min-height: 36px;
+        }
+        .control-group input[type="number"] { width: 65px; }
+
+        .badge-pinned {
+            background: #eff6ff; color: var(--primary); border: 1px solid var(--border-primary);
+            font-size: 0.65rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);
+            display: inline-flex; align-items: center; gap: 0.25rem; flex-shrink: 0;
         }
 
         /* ==========================================================================
@@ -775,9 +785,10 @@
 
 
             <!-- ==========================================================================
-               TAB VIEW 2: KELOLA LIKE & PRIORITAS
+               TAB VIEW 2: KELOLA LIKE, PINNED & AUTO-LIKE SEIRING WAKTU
                ========================================================================== -->
             <section id="view-likes" class="tab-view">
+                <!-- TAMBAH LIKE MASAL -->
                 <div class="card global-action">
                     <div>
                         <h3 style="font-size: 0.98rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.2rem;">
@@ -795,11 +806,19 @@
                     </div>
                 </div>
 
+                <!-- DAFTAR PENGELOLAAN POSTINGAN -->
                 <div class="card">
-                    <div id="dataContainer">
-                        <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
-                            <i class="fas fa-spinner fa-spin fa-2x"></i>
-                            <p style="margin-top: 0.85rem; font-weight: 600;">Memuat daftar postingan...</p>
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-thumbtack text-primary"></i> Kelola Prioritas & Auto-Like Seiring Waktu</h2>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Atur postingan unggulan (Pinned) serta aktifkan fitur <strong>Auto-Like Otomatis</strong> agar jumlah like bertambah sendiri secara berkala berdasarkan interval waktu yang ditentukan.
+                    </p>
+
+                    <div class="post-admin-list" id="adminPostContainer">
+                        <div class="loader-container">
+                            <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+                            <p style="margin-top: 0.5rem;">Memuat daftar postingan...</p>
                         </div>
                     </div>
                 </div>
@@ -846,7 +865,7 @@
                 </div>
 
                 <!-- FEED INTERAKTIF BOT -->
-                <div class="admin-post-list" id="adminPostContainer">
+                <div class="admin-post-list" id="adminFeedContainer">
                     <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
                         <i class="fas fa-circle-notch fa-spin fa-2x"></i>
                         <p style="margin-top: 0.85rem; font-weight: 600;">Memuat daftar diskusi...</p>
@@ -1472,99 +1491,147 @@
             setTimeout(() => { ticker.style.display = 'none'; }, 4000);
         }
 
+        // RENDER KELOLA LIKE & PRIORITAS (VIEW 2)
         function renderLikesUI() {
-            let desktopHtml = `
-                <table class="desktop-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 38%;">Info Postingan</th>
-                            <th style="width: 15%;">Kategori</th>
-                            <th style="width: 15%;">Total Like</th>
-                            <th style="width: 32%;">Aksi (Atur Like / Prioritas)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            let mobileHtml = `<div class="mobile-card-container">`;
+            const container = document.getElementById('adminPostContainer');
+            if (postsData.length === 0) {
+                container.innerHTML = '<div class="loader-container"><p>Belum ada postingan di forum.</p></div>';
+                return;
+            }
 
+            let html = '';
             postsData.forEach(post => {
-                const likeCount = post.likes.length;
-                const isPriority = post.autoLikeConfig && post.autoLikeConfig.active;
-                const priorityBadge = isPriority ? `<div class="badge-priority"><i class="fas fa-star"></i> Prioritas Aktif</div>` : '';
+                const id = post.id;
+                const title = post.judul || 'Tanpa Judul';
+                const author = post.penulis || 'Mitra';
+                const content = post.isi ? (post.isi.substring(0, 100) + '...') : '';
                 
-                desktopHtml += `
-                    <tr>
-                        <td>
-                            <span class="post-title" style="font-size:0.85rem;">${post.judul}</span>
-                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;"><i class="fas fa-user"></i> ${post.penulis}</div>
-                            ${priorityBadge}
-                        </td>
-                        <td><span class="post-badge">${post.kategori}</span></td>
-                        <td><span class="badge-like"><i class="fas fa-heart"></i> ${likeCount}</span></td>
-                        <td>
-                            <div style="display:flex; gap:0.4rem; align-items:center;">
-                                <input type="number" id="input-like-desk-${post.id}" class="form-control" style="width:75px; padding:0.4rem;" value="${likeCount}" min="0">
-                                <button class="btn btn-primary" style="padding:0.4rem 0.75rem; min-height:36px;" onclick="setLikeSingle('${post.id}', 'desk')"><i class="fas fa-save"></i></button>
-                                <button class="btn btn-warning" style="padding:0.4rem 0.75rem; min-height:36px;" onclick="openPriorityModal('${post.id}')"><i class="fas fa-star"></i> Prioritas</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                const isPrioritized = post.isPrioritized === true;
+                const autoLikeConf = post.autoLikeConfig || { active: false, increment: 1, intervalMinutes: 5 };
+                const autoLikeActive = autoLikeConf.active === true;
+                const autoLikeRate = autoLikeConf.increment || 1;
+                const autoLikeInterval = autoLikeConf.intervalMinutes || 5;
 
-                mobileHtml += `
-                    <div class="mobile-post-card">
-                        <div class="mobile-post-header">
-                            <div style="flex:1; padding-right:0.5rem; min-width:0;">
-                                <div style="font-weight:800; font-size:0.88rem; word-break:break-word;">${post.judul}</div>
-                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;"><i class="fas fa-user"></i> ${post.penulis}</div>
-                                ${priorityBadge}
+                const realLikesCount = (post.likes || []).length;
+
+                html += `
+                    <div class="post-admin-item ${isPrioritized ? 'prioritized' : ''}" id="admin-item-${id}">
+                        <div class="post-admin-header">
+                            <div>
+                                <div class="post-admin-title">
+                                    ${title} ${isPrioritized ? '<span class="badge-pinned"><i class="fas fa-thumbtack"></i> Pinned</span>' : ''}
+                                </div>
+                                <div class="post-admin-meta">Oleh: <strong>${author}</strong> | Total Like: <strong>${realLikesCount}</strong></div>
                             </div>
-                            <span class="badge-like" style="flex-shrink:0;"><i class="fas fa-heart"></i> ${likeCount}</span>
                         </div>
-                        <div class="mobile-post-action">
-                            <div class="mobile-action-row">
-                                <input type="number" id="input-like-mob-${post.id}" class="form-control" value="${likeCount}" min="0">
-                                <button class="btn btn-primary" style="min-height:44px;" onclick="setLikeSingle('${post.id}', 'mob')"><i class="fas fa-save"></i> Simpan</button>
+                        <div class="post-admin-snippet">${content}</div>
+                        
+                        <div class="admin-controls">
+                            <div class="control-group">
+                                <span>Prioritaskan (Pinned):</span>
+                                <label class="switch-container" style="width: auto; padding: 0; background: transparent; border: none; min-height: auto;">
+                                    <input type="checkbox" ${isPrioritized ? 'checked' : ''} class="switch-input" style="display:none;" onchange="togglePriority('${id}', this.checked)">
+                                    <span class="switch-slider"></span>
+                                </label>
                             </div>
-                            <button class="btn btn-warning" style="width:100%; min-height:44px;" onclick="openPriorityModal('${post.id}')"><i class="fas fa-star"></i> Atur Prioritas</button>
+
+                            <div class="control-group">
+                                <span>Auto-Like:</span>
+                                <label class="switch-container" style="width: auto; padding: 0; background: transparent; border: none; min-height: auto;">
+                                    <input type="checkbox" ${autoLikeActive ? 'checked' : ''} class="switch-input" style="display:none;" onchange="toggleAutoLike('${id}', this.checked)">
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="control-group">
+                                <span>Tambah:</span>
+                                <input type="number" value="${autoLikeRate}" min="1" onchange="updateAutoLikeRate('${id}', this.value)" title="Jumlah like yang bertambah">
+                                <span>like tiap</span>
+                                <select class="form-select" style="padding:0.3rem 0.5rem; min-height:36px; width:auto;" onchange="updateAutoLikeInterval('${id}', this.value)">
+                                    <option value="5" ${autoLikeInterval == 5 ? 'selected' : ''}>5 Menit</option>
+                                    <option value="15" ${autoLikeInterval == 15 ? 'selected' : ''}>15 Menit</option>
+                                    <option value="30" ${autoLikeInterval == 30 ? 'selected' : ''}>30 Menit</option>
+                                    <option value="60" ${autoLikeInterval == 60 ? 'selected' : ''}>1 Jam</option>
+                                    <option value="360" ${autoLikeInterval == 360 ? 'selected' : ''}>6 Jam</option>
+                                    <option value="1440" ${autoLikeInterval == 1440 ? 'selected' : ''}>24 Jam</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-danger-sm" onclick="deletePost('${id}')" style="margin-left: auto;">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
                         </div>
                     </div>
                 `;
             });
-
-            desktopHtml += `</tbody></table>`;
-            mobileHtml += `</div>`;
-            document.getElementById('dataContainer').innerHTML = desktopHtml + mobileHtml;
+            container.innerHTML = html;
         }
 
-        window.setLikeSingle = async function(postId, viewType) {
-            const inputEl = document.getElementById(`input-like-${viewType}-${postId}`);
-            if(!inputEl) return;
-            const targetCount = parseInt(inputEl.value);
-            if (isNaN(targetCount) || targetCount < 0) { alert("Masukkan angka yang valid!"); return; }
-
-            showLoader("Memperbarui Like...", "Menyimpan data...");
+        window.togglePriority = async function(postId, isChecked) {
             try {
-                const docRef = doc(db, "forum_posts", postId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    let currentLikes = docSnap.data().likes || [];
-                    if (targetCount > currentLikes.length) {
-                        const diff = targetCount - currentLikes.length;
-                        for (let i = 0; i < diff; i++) { currentLikes.push(`dummy_like_${Date.now()}_${Math.floor(Math.random() * 1000)}`); }
-                    } else if (targetCount < currentLikes.length) {
-                        currentLikes = currentLikes.slice(0, targetCount);
-                    }
-                    await updateDoc(docRef, { likes: currentLikes });
-                    const postIndex = postsData.findIndex(p => p.id === postId);
-                    if(postIndex !== -1) postsData[postIndex].likes = currentLikes;
-                    renderLikesUI();
-                }
-            } catch (error) {
-                console.error("Gagal mengupdate like:", error);
-                alert("Terjadi kesalahan sistem.");
-            } finally {
-                hideLoader();
+                const ref = doc(db, "forum_posts", postId);
+                await updateDoc(ref, { isPrioritized: isChecked });
+                const post = postsData.find(p => p.id === postId);
+                if(post) post.isPrioritized = isChecked;
+                renderLikesUI();
+            } catch (err) {
+                console.error("Gagal mengubah prioritas:", err);
+                alert("Gagal mengubah status prioritas.");
+            }
+        };
+
+        window.toggleAutoLike = async function(postId, isChecked) {
+            try {
+                const post = postsData.find(p => p.id === postId);
+                if(!post) return;
+                const currentConf = post.autoLikeConfig || { increment: 1, intervalMinutes: 5 };
+                
+                const newConf = {
+                    active: isChecked,
+                    increment: currentConf.increment || 1,
+                    intervalMinutes: currentConf.intervalMinutes || 5,
+                    lastRun: isChecked ? Date.now() : (currentConf.lastRun || Date.now())
+                };
+
+                const ref = doc(db, "forum_posts", postId);
+                await updateDoc(ref, { autoLikeConfig: newConf });
+                post.autoLikeConfig = newConf;
+                renderLikesUI();
+            } catch (err) {
+                console.error("Gagal mengubah status auto-like:", err);
+                alert("Gagal mengubah status auto-like.");
+            }
+        };
+
+        window.updateAutoLikeRate = async function(postId, val) {
+            const num = parseInt(val) || 1;
+            try {
+                const post = postsData.find(p => p.id === postId);
+                if(!post) return;
+                const currentConf = post.autoLikeConfig || { active: false, intervalMinutes: 5 };
+                currentConf.increment = num;
+
+                const ref = doc(db, "forum_posts", postId);
+                await updateDoc(ref, { autoLikeConfig: currentConf });
+                post.autoLikeConfig = currentConf;
+            } catch (err) {
+                console.error("Gagal memperbarui rate like:", err);
+            }
+        };
+
+        window.updateAutoLikeInterval = async function(postId, val) {
+            const num = parseInt(val) || 5;
+            try {
+                const post = postsData.find(p => p.id === postId);
+                if(!post) return;
+                const currentConf = post.autoLikeConfig || { active: false, increment: 1 };
+                currentConf.intervalMinutes = num;
+
+                const ref = doc(db, "forum_posts", postId);
+                await updateDoc(ref, { autoLikeConfig: currentConf });
+                post.autoLikeConfig = currentConf;
+            } catch (err) {
+                console.error("Gagal memperbarui interval:", err);
             }
         };
 
@@ -1594,106 +1661,6 @@
             } catch (error) {
                 console.error("Gagal penambahan masal:", error);
                 alert("Gagal melakukan proses masal.");
-            } finally {
-                hideLoader();
-            }
-        };
-
-        // PRIORITAS MODAL
-        window.openPriorityModal = function(postId) {
-            const post = postsData.find(p => p.id === postId);
-            if(!post) return;
-            document.getElementById('modalPostId').value = postId;
-            const conf = post.autoLikeConfig || {};
-            document.getElementById('togglePriority').checked = Boolean(conf.active);
-            document.getElementById('autoLikeCount').value = conf.increment || 1;
-            document.getElementById('autoLikeInterval').value = conf.intervalMinutes || 5;
-            document.getElementById('priorityModal').classList.add('active');
-        };
-
-        window.closePriorityModal = function() {
-            document.getElementById('priorityModal').classList.remove('active');
-        };
-
-        window.savePriorityConfig = async function() {
-            const postId = document.getElementById('modalPostId').value;
-            const post = postsData.find(p => p.id === postId);
-            if(!post) return;
-
-            const isActive = document.getElementById('togglePriority').checked;
-            const count = parseInt(document.getElementById('autoLikeCount').value) || 1;
-            const interval = parseInt(document.getElementById('autoLikeInterval').value) || 5;
-
-            showLoader("Menyimpan Pengaturan...", "Memperbarui konfigurasi...");
-            try {
-                const newConfig = {
-                    active: isActive,
-                    increment: count,
-                    intervalMinutes: interval,
-                    lastRun: isActive && (!post.autoLikeConfig || !post.autoLikeConfig.active) ? Date.now() : ((post.autoLikeConfig && post.autoLikeConfig.lastRun) || Date.now())
-                };
-
-                await updateDoc(doc(db, "forum_posts", postId), { autoLikeConfig: newConfig });
-                post.autoLikeConfig = newConfig;
-                closePriorityModal();
-                renderLikesUI();
-                alert("Pengaturan Prioritas disimpan.");
-            } catch (err) {
-                console.error(err);
-                alert("Gagal menyimpan pengaturan.");
-            } finally {
-                hideLoader();
-            }
-        };
-
-        window.generateMassComments = async function() {
-            const postId = document.getElementById('modalPostId').value;
-            const post = postsData.find(p => p.id === postId);
-            if(!post) return;
-
-            if(!confirm("Generate komentar dari SELURUH pengguna terdaftar?")) return;
-            closePriorityModal();
-            showLoader("Membuat Komentar Massal...", "Mengambil data pengguna...");
-
-            try {
-                const usersSnap = await getDocs(usersCollection);
-                let currentComments = post.comments || [];
-                let addedCount = 0;
-
-                const genericTexts = [
-                    "Sangat bermanfaat informasinya kak!",
-                    "Terima kasih sudah berbagi.",
-                    "Wah mantap, sukses selalu bisnisnya!",
-                    "Sangat membantu operasional saya, izin menyimak.",
-                    "Sitenexs memang luar biasa.",
-                    "Semoga berkah usahanya kak.",
-                    "Saya setuju sekali dengan ini.",
-                    "Luar biasa, sangat menginspirasi!",
-                    "Izin terapkan di toko saya kak."
-                ];
-
-                usersSnap.forEach((userDoc) => {
-                    const uData = userDoc.data();
-                    const uName = uData.namaLengkap || uData.namaDepan || "Mitra Sitenexs";
-                    const uVerified = Boolean(uData.isVerified || uData.isFounder || uData.isDeveloper);
-                    const randomComment = genericTexts[Math.floor(Math.random() * genericTexts.length)];
-
-                    currentComments.push({
-                        authorUid: userDoc.id,
-                        penulis: uName,
-                        isVerified: uVerified,
-                        isi: randomComment,
-                        createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000)).toISOString() 
-                    });
-                    addedCount++;
-                });
-
-                await updateDoc(doc(db, "forum_posts", postId), { comments: currentComments });
-                post.comments = currentComments;
-                alert(`Sukses! ${addedCount} komentar ditambahkan.`);
-            } catch (err) {
-                console.error("Gagal generate komentar massal:", err);
-                alert("Terjadi kesalahan.");
             } finally {
                 hideLoader();
             }
@@ -1823,7 +1790,8 @@
 
         // RENDER FEED INTERAKTIF BOT
         function renderBotFeed() {
-            const container = document.getElementById('adminPostContainer');
+            const container = document.getElementById('adminFeedContainer');
+            if (!container) return;
             if (postsData.length === 0) {
                 container.innerHTML = '<div style="text-align:center; padding:2.5rem 1rem; color:var(--text-muted);">Belum ada diskusi di forum.</div>';
                 return;
@@ -1984,7 +1952,7 @@
 
         // REALTIME MONITORING
         function startRealtimePosts() {
-            const qRecent = query(forumCollection, orderBy("createdAt", "desc"), limit(30));
+            const qRecent = query(forumCollection, orderBy("createdAt", "desc"), limit(40));
             onSnapshot(qRecent, (snapshot) => {
                 postsData = [];
                 statPostCount.innerText = snapshot.size;
@@ -2008,6 +1976,7 @@
                             kategori: data.kategori || 'Umum',
                             likes: data.likes || [],
                             comments: data.comments || [],
+                            isPrioritized: Boolean(data.isPrioritized),
                             createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(),
                             autoLikeConfig: data.autoLikeConfig || { active: false, increment: 1, intervalMinutes: 5, lastRun: Date.now() }
                         });
