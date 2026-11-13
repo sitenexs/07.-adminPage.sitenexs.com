@@ -187,7 +187,6 @@
         .btn-warning { background: #fef3c7; color: #d97706; }
         .btn-secondary { background: #f8fafc; color: var(--text-main); border: 1px solid var(--border-medium); }
         .btn-secondary:active { background: #e2e8f0; }
-        .btn-verified { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
 
         /* Form Jabatan Read-only */
         .jabatan-section {
@@ -413,18 +412,19 @@
                         </div>
                     </div>
                     
-                    <div class="action-group">
+                    <div class="action-group ${!user.isVerified ? 'full' : ''}">
                         <!-- Tombol Developer -->
                         <button class="btn ${user.isDev ? 'btn-danger' : 'btn-primary'}" onclick="toggleStatus('${user.uid}', 'isDeveloper', ${user.isDev})">
                             <i class="fas ${user.isDev ? 'fa-user-minus' : 'fa-code'}"></i>
                             ${user.isDev ? 'Hapus Pengembang' : 'Jadikan Pengembang'}
                         </button>
                         
-                        <!-- Tombol Centang Biru (Terverifikasi) - Independen dari Status Dev -->
-                        <button class="btn ${user.isVerified ? 'btn-danger' : 'btn-verified'}" onclick="toggleStatus('${user.uid}', 'isVerified', ${user.isVerified})">
-                            <i class="fas ${user.isVerified ? 'fa-times' : 'fa-check-circle'}"></i>
-                            ${user.isVerified ? 'Hapus Centang Biru' : 'Beri Centang Biru'}
+                        <!-- Tombol Hapus Centang Biru (Hanya muncul jika user memiliki centang biru) -->
+                        ${user.isVerified ? `
+                        <button class="btn btn-danger" onclick="toggleStatus('${user.uid}', 'isVerified', ${user.isVerified})">
+                            <i class="fas fa-times"></i> Hapus Centang Biru
                         </button>
+                        ` : ''}
                     </div>
 
                     <!-- Tombol Founder (Tampil jika user adalah Dev) -->
