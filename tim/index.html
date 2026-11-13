@@ -155,7 +155,7 @@
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .details { flex: 1; overflow: hidden; }
-        .details h4 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .details h4 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 0.4rem; }
         .details p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
         
         .badge-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
@@ -164,6 +164,7 @@
         }
         .badge.founder { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
         .badge.dev { background: rgba(37,99,235,0.1); color: var(--primary); border: 1px solid rgba(37,99,235,0.2); }
+        .badge.verified { background: rgba(37,99,235,0.15); color: var(--primary); border: 1px solid rgba(37,99,235,0.3); }
         .badge.user { background: rgba(71,85,105,0.1); color: var(--text-muted); }
 
         .action-group {
@@ -186,6 +187,7 @@
         .btn-warning { background: #fef3c7; color: #d97706; }
         .btn-secondary { background: #f8fafc; color: var(--text-main); border: 1px solid var(--border-medium); }
         .btn-secondary:active { background: #e2e8f0; }
+        .btn-verified { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
 
         /* Form Jabatan Read-only */
         .jabatan-section {
@@ -202,7 +204,7 @@
         .jabatan-input-readonly {
             flex: 1; padding: 0.6rem; border: 1px solid var(--border-medium); border-radius: 6px; 
             font-size: 0.85rem; background: #e2e8f0; color: var(--text-muted); cursor: not-allowed;
-            pointer-events: none; /* Mencegah klik masuk ke input */
+            pointer-events: none;
         }
 
         .loading { text-align: center; color: var(--text-muted); padding: 3rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
@@ -258,6 +260,7 @@
         <ul class="sidebar-menu">
             <li><button class="filter-btn active" data-filter="all"><i class="fas fa-users"></i> Semua User</button></li>
             <li><button class="filter-btn" data-filter="dev"><i class="fas fa-code"></i> Mitra Pengembang</button></li>
+            <li><button class="filter-btn" data-filter="verified"><i class="fas fa-check-circle text-primary"></i> Akun Terverifikasi</button></li>
             <li><button class="filter-btn" data-filter="user"><i class="fas fa-store"></i> Mitra Biasa</button></li>
         </ul>
     </div>
@@ -355,6 +358,7 @@
                         bisnis: data.bisnis?.nama || 'Belum setup bisnis',
                         isDev: data.isDeveloper || false,
                         isFounder: data.isFounder || false,
+                        isVerified: data.isVerified || false, // Status Centang Biru Terverifikasi
                         jabatan: data.jabatanPengembang || ''
                     });
                 });
@@ -374,7 +378,8 @@
             // Logika Filter
             let filtered = allUsersData;
             if (currentFilter === 'dev') filtered = allUsersData.filter(u => u.isDev && !u.isFounder);
-            else if (currentFilter === 'user') filtered = allUsersData.filter(u => !u.isDev && !u.isFounder);
+            else if (currentFilter === 'verified') filtered = allUsersData.filter(u => u.isVerified);
+            else if (currentFilter === 'user') filtered = allUsersData.filter(u => !u.isDev && !u.isFounder && !u.isVerified);
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="loading" style="color: var(--text-muted);"><i class="fas fa-folder-open" style="color:#cbd5e1"></i> Data kosong untuk kategori ini.</div>';
@@ -385,11 +390,14 @@
                 const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(user.uid)}/profile-photo`;
                 const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=2563eb&color=fff&size=150`;
 
-                // Badge Status
+                // Badge Status & Centang Biru pada Nama
                 let badgeHTML = '';
                 if(user.isFounder) badgeHTML += `<span class="badge founder"><i class="fas fa-crown"></i> Founder</span>`;
                 if(user.isDev) badgeHTML += `<span class="badge dev"><i class="fas fa-code"></i> Pengembang</span>`;
-                if(!user.isFounder && !user.isDev) badgeHTML += `<span class="badge user"><i class="fas fa-user"></i> Mitra Biasa</span>`;
+                if(user.isVerified) badgeHTML += `<span class="badge verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>`;
+                if(!user.isFounder && !user.isDev && !user.isVerified) badgeHTML += `<span class="badge user"><i class="fas fa-user"></i> Mitra Biasa</span>`;
+
+                const verifiedIcon = user.isVerified ? `<i class="fas fa-check-circle" style="color: var(--primary); font-size: 0.95rem;" title="Akun Terverifikasi"></i>` : '';
 
                 const card = document.createElement('div');
                 card.className = 'user-card';
@@ -399,27 +407,35 @@
                             <img src="${photoUrl}" alt="${user.nama}" onerror="this.onerror=null; this.src='${fallbackUrl}';">
                         </div>
                         <div class="details">
-                            <h4>${user.nama}</h4>
+                            <h4>${user.nama} ${verifiedIcon}</h4>
                             <p><i class="fas fa-store"></i> ${user.bisnis}</p>
                             <div class="badge-group">${badgeHTML}</div>
                         </div>
                     </div>
                     
-                    <div class="action-group ${user.isFounder ? 'full' : ''}">
+                    <div class="action-group">
                         <!-- Tombol Developer -->
                         <button class="btn ${user.isDev ? 'btn-danger' : 'btn-primary'}" onclick="toggleStatus('${user.uid}', 'isDeveloper', ${user.isDev})">
                             <i class="fas ${user.isDev ? 'fa-user-minus' : 'fa-code'}"></i>
                             ${user.isDev ? 'Hapus Pengembang' : 'Jadikan Pengembang'}
                         </button>
                         
-                        <!-- Tombol Founder (Tampil jika user adalah Dev) -->
-                        ${user.isDev ? `
+                        <!-- Tombol Centang Biru (Terverifikasi) - Independen dari Status Dev -->
+                        <button class="btn ${user.isVerified ? 'btn-danger' : 'btn-verified'}" onclick="toggleStatus('${user.uid}', 'isVerified', ${user.isVerified})">
+                            <i class="fas ${user.isVerified ? 'fa-times' : 'fa-check-circle'}"></i>
+                            ${user.isVerified ? 'Hapus Centang Biru' : 'Beri Centang Biru'}
+                        </button>
+                    </div>
+
+                    <!-- Tombol Founder (Tampil jika user adalah Dev) -->
+                    ${user.isDev ? `
+                    <div class="action-group full" style="border-top: none; padding-top: 0; margin-top: -0.25rem;">
                         <button class="btn ${user.isFounder ? 'btn-danger' : 'btn-warning'}" onclick="toggleStatus('${user.uid}', 'isFounder', ${user.isFounder})">
                             <i class="fas ${user.isFounder ? 'fa-times' : 'fa-crown'}"></i>
                             ${user.isFounder ? 'Hapus Status Founder' : 'Jadikan Founder'}
                         </button>
-                        ` : ''}
                     </div>
+                    ` : ''}
 
                     <!-- Input Jabatan (Tampil jika user adalah Dev, READ-ONLY) -->
                     ${user.isDev ? `
@@ -459,11 +475,14 @@
             });
         });
 
-        // Fungsi Update Status (isDeveloper / isFounder)
+        // Fungsi Update Status (isDeveloper / isFounder / isVerified)
         window.toggleStatus = async function(uid, field, currentStatus) {
             const newStatus = !currentStatus;
-            const textRef = field === 'isFounder' ? 'Founder' : 'Pengembang';
-            const confirmMsg = newStatus ? `Jadikan user ini ${textRef}?` : `Hapus status ${textRef}?`;
+            let textRef = 'Pengembang';
+            if(field === 'isFounder') textRef = 'Founder';
+            if(field === 'isVerified') textRef = 'Centang Biru (Terverifikasi)';
+
+            const confirmMsg = newStatus ? `Aktifkan ${textRef} untuk user ini?` : `Hapus ${textRef}?`;
             
             if(!confirm(confirmMsg)) return;
 
