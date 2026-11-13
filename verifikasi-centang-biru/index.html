@@ -19,6 +19,8 @@
             --accent: #10b981;
             --danger: #ef4444;
             --danger-light: #fef2f2;
+            --warning-light: #fffbeb;
+            --warning-dark: #d97706;
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
             --text-main: #0f172a;
@@ -79,7 +81,7 @@
 
         /* CONTAINER & HEADER */
         .container {
-            max-width: 1000px;
+            max-width: 1050px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
@@ -201,11 +203,18 @@
         }
 
         /* BUTTONS & BADGES */
+        .btn-group-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            align-items: flex-end;
+        }
+
         .btn {
             padding: 0.45rem 1rem;
             border-radius: 99px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             border: none;
             display: inline-flex;
@@ -213,6 +222,7 @@
             justify-content: center;
             gap: 0.4rem;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .btn-verify {
@@ -227,6 +237,19 @@
         }
         .btn-unverify:hover { background: var(--danger); color: #fff; }
 
+        .btn-pro {
+            background: var(--warning-light);
+            color: var(--warning-dark);
+            border: 1px solid #fcd34d;
+        }
+        .btn-pro:hover { background: #f59e0b; color: #fff; }
+
+        .status-badges-cell {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -238,11 +261,12 @@
         }
 
         .status-verified { background: var(--primary-light); color: var(--primary-dark); border: 1px solid rgba(37,99,235,0.2); }
+        .status-pro { background: var(--warning-light); color: var(--warning-dark); border: 1px solid #fcd34d; }
         .status-standard { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-subtle); }
 
         #loading { text-align: center; padding: 3rem; color: var(--text-muted); font-weight: 500; }
 
-        /* RESPONSIVE MOBILE (Ubah Tabel Jadi List Card) */
+        /* RESPONSIVE MOBILE */
         @media (max-width: 768px) {
             .container { margin: 1.5rem auto; padding: 0 1rem; }
             .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
@@ -251,7 +275,7 @@
             .admin-card { background: transparent; border: none; box-shadow: none; border-radius: 0; }
             
             table, thead, tbody, th, td, tr { display: block; }
-            thead tr { display: none; /* Sembunyikan header tabel di mobile */ }
+            thead tr { display: none; }
             
             tr {
                 background: var(--bg-card);
@@ -268,25 +292,23 @@
                 position: relative;
             }
 
-            td.hide-mobile { display: none; } /* Sembunyikan sel spesifik desktop */
+            td.hide-mobile { display: none; }
 
-            /* Penyesuaian layout di dalam card mobile */
             .user-cell { margin-bottom: 1rem; }
             
-            /* Status ditempatkan absolute di pojok kanan atas */
             td:nth-child(3) {
                 position: absolute;
                 top: 1.25rem;
                 right: 1.25rem;
             }
 
-            /* Tombol Aksi memenuhi lebar penuh di bawah */
             td:nth-child(4) {
                 margin-top: 1rem;
                 padding-top: 1rem;
                 border-top: 1px dashed var(--border-subtle);
             }
-            td:nth-child(4) .btn { width: 100%; padding: 0.6rem; font-size: 0.9rem; }
+            .btn-group-actions { align-items: stretch; }
+            .btn-group-actions .btn { width: 100%; padding: 0.5rem; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -308,8 +330,8 @@
     <main class="container">
         <div class="dashboard-header">
             <div class="header-title">
-                <h1>Manajemen Verifikasi</h1>
-                <p>Kelola lencana centang biru (Verified) pengguna Sitenexs.</p>
+                <h1>Manajemen Verifikasi & Lencana</h1>
+                <p>Kelola centang biru (Verified) dan lencana kuning (Pro) pengguna Sitenexs secara eksklusif.</p>
             </div>
             <div class="search-box">
                 <i class="fas fa-search text-muted"></i>
@@ -324,7 +346,7 @@
                         <tr>
                             <th>Profil Pengguna</th>
                             <th class="hide-mobile">Akun Bisnis</th>
-                            <th>Status</th>
+                            <th>Status Lencana</th>
                             <th style="text-align: right;">Aksi</th>
                         </tr>
                     </thead>
@@ -338,7 +360,6 @@
     </main>
 
     <style>
-        /* Extra fix for mobile logout icon */
         @media (max-width: 600px) {
             .hide-mobile.btn-logout { display: none; }
             .show-mobile.btn-logout { display: inline-flex !important; font-size: 1.2rem; }
@@ -346,7 +367,7 @@
         }
     </style>
 
-      <script type="module">
+    <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
         import { getFirestore, collection, getDocs, doc, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
 
@@ -376,14 +397,15 @@
                 const querySnapshot = await getDocs(collection(db, "users"));
                 usersData = [];
                 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
                     usersData.push({
-                        uid: doc.id,
+                        uid: docSnap.id,
                         nama: data.namaLengkap || data.namaDepan + (data.namaBelakang ? ' ' + data.namaBelakang : '') || 'Tanpa Nama',
                         email: data.email || 'Tidak ada email',
                         bisnis: data.bisnis?.nama || 'Belum diatur',
-                        isVerified: data.isVerified === true // Memastikan hanya bernilai true jika benar-benar ada dan bernilai true
+                        isVerified: data.isVerified === true,
+                        isPro: Boolean(data.isPro) || Boolean(data.lencanaKuning) || Boolean(data.isLencanaKuning)
                     });
                 });
                 
@@ -407,17 +429,38 @@
                 const photoUrl = `${supabaseUrl}/storage/v1/object/public/${avatarBucket}/${encodeURIComponent(user.uid)}/profile-photo`;
                 const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.nama)}&background=2563eb&color=fff`;
 
-                const verifiedIcon = user.isVerified 
-                    ? `<img src="https://sitenexs.com/assets/logo/verified.png" alt="Verified" class="verification-icon">` 
-                    : '';
+                let iconsHtml = '';
+                if (user.isVerified) {
+                    iconsHtml += `<img src="https://sitenexs.com/assets/logo/verified.png" alt="Verified" class="verification-icon" title="Terverifikasi">`;
+                }
+                if (user.isPro) {
+                    iconsHtml += `<img src="https://sitenexs.com/assets/logo/lencana.png" alt="Pro" class="verification-icon" title="Lencana Pro (Kuning)" style="margin-left: 2px;">`;
+                }
                 
-                const statusBadge = user.isVerified 
-                    ? `<span class="status-badge status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>` 
-                    : `<span class="status-badge status-standard">Standar</span>`;
+                let badgesHtml = '';
+                if (user.isVerified) {
+                    badgesHtml += `<span class="status-badge status-verified"><i class="fas fa-check-circle"></i> Terverifikasi</span>`;
+                }
+                if (user.isPro) {
+                    badgesHtml += `<span class="status-badge status-pro"><i class="fas fa-star"></i> Lencana Pro</span>`;
+                }
+                if (!user.isVerified && !user.isPro) {
+                    badgesHtml = `<span class="status-badge status-standard">Standar</span>`;
+                }
 
-                const actionButton = user.isVerified
-                    ? `<button class="btn btn-unverify" onclick="toggleVerification('${user.uid}', false)"><i class="fas fa-times"></i> Cabut Verifikasi</button>`
-                    : `<button class="btn btn-verify" onclick="toggleVerification('${user.uid}', true)"><i class="fas fa-check"></i> Verifikasi Akun</button>`;
+                // Tombol aksi eksklusif
+                let actionButtons = '';
+                if (user.isVerified) {
+                    actionButtons += `<button class="btn btn-unverify" onclick="toggleBadge('${user.uid}', 'verified', false)"><i class="fas fa-times"></i> Cabut Centang Biru</button>`;
+                } else {
+                    actionButtons += `<button class="btn btn-verify" onclick="toggleBadge('${user.uid}', 'verified', true)"><i class="fas fa-check"></i> Beri Centang Biru</button>`;
+                }
+
+                if (user.isPro) {
+                    actionButtons += `<button class="btn btn-unverify" onclick="toggleBadge('${user.uid}', 'pro', false)"><i class="fas fa-times"></i> Cabut Lencana Pro</button>`;
+                } else {
+                    actionButtons += `<button class="btn btn-pro" onclick="toggleBadge('${user.uid}', 'pro', true)"><i class="fas fa-star"></i> Beri Lencana Pro</button>`;
+                }
 
                 const row = `
                     <tr>
@@ -427,7 +470,7 @@
                                 <div>
                                     <div class="name-wrapper">
                                         ${user.nama}
-                                        ${verifiedIcon}
+                                        ${iconsHtml}
                                     </div>
                                     <div class="user-email">${user.email}</div>
                                 </div>
@@ -436,37 +479,75 @@
                         <td class="hide-mobile">
                             <span class="business-text">${user.bisnis}</span>
                         </td>
-                        <td>${statusBadge}</td>
-                        <td style="text-align: right;">${actionButton}</td>
+                        <td>
+                            <div class="status-badges-cell">${badgesHtml}</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="btn-group-actions">
+                                ${actionButtons}
+                            </div>
+                        </td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
         }
 
-        window.toggleVerification = async function(uid, setVerified) {
-            const confirmMsg = setVerified 
-                ? "Berikan lencana verifikasi (centang biru) ke pengguna ini?" 
-                : "Cabut lencana verifikasi dari pengguna ini?";
+        // --- LOGIKA EKSKLUSIF: JIKA SATU AKTIF, YANG LAIN MATI ---
+        window.toggleBadge = async function(uid, badgeType, activate) {
+            let confirmMsg = "";
+            if (badgeType === 'verified') {
+                confirmMsg = activate 
+                    ? "Berikan centang biru? (Jika Lencana Pro aktif, akan otomatis dinonaktifkan)." 
+                    : "Cabut centang biru dari pengguna ini?";
+            } else {
+                confirmMsg = activate 
+                    ? "Berikan Lencana Pro (Kuning)? (Jika Centang Biru aktif, akan otomatis dinonaktifkan)." 
+                    : "Cabut Lencana Pro dari pengguna ini?";
+            }
                 
             if (!confirm(confirmMsg)) return;
 
             try {
                 const userRef = doc(db, "users", uid);
-                
                 let updatePayload = {};
-                if (setVerified) {
-                    updatePayload.isVerified = true;
-                } else {
-                    // Benar-benar menghapus field isVerified dari dokumen database Firestore
-                    updatePayload.isVerified = deleteField();
+
+                if (badgeType === 'verified') {
+                    if (activate) {
+                        updatePayload.isVerified = true;
+                        // Matikan lencana Pro secara eksklusif
+                        updatePayload.isPro = deleteField();
+                        updatePayload.lencanaKuning = deleteField();
+                        updatePayload.isLencanaKuning = deleteField();
+                    } else {
+                        updatePayload.isVerified = deleteField();
+                    }
+                } else if (badgeType === 'pro') {
+                    if (activate) {
+                        updatePayload.isPro = true;
+                        updatePayload.lencanaKuning = true;
+                        updatePayload.isLencanaKuning = true;
+                        // Matikan centang biru secara eksklusif
+                        updatePayload.isVerified = deleteField();
+                    } else {
+                        updatePayload.isPro = deleteField();
+                        updatePayload.lencanaKuning = deleteField();
+                        updatePayload.isLencanaKuning = deleteField();
+                    }
                 }
 
                 await updateDoc(userRef, updatePayload);
                 
+                // Update state lokal dan render ulang tabel
                 const userIndex = usersData.findIndex(u => u.uid === uid);
                 if (userIndex !== -1) {
-                    usersData[userIndex].isVerified = setVerified;
+                    if (badgeType === 'verified') {
+                        usersData[userIndex].isVerified = activate;
+                        if (activate) usersData[userIndex].isPro = false;
+                    } else if (badgeType === 'pro') {
+                        usersData[userIndex].isPro = activate;
+                        if (activate) usersData[userIndex].isVerified = false;
+                    }
                 }
                 
                 const searchTerm = searchInput.value.toLowerCase();
@@ -478,7 +559,7 @@
                 renderTable(filteredData);
 
             } catch (error) {
-                console.error("Gagal update status:", error);
+                console.error("Gagal update lencana:", error);
                 alert("Akses Ditolak: Anda tidak memiliki izin Admin untuk mengubah status Firestore.");
             }
         }
