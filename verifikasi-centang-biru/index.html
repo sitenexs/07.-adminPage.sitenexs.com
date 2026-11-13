@@ -346,9 +346,9 @@
         }
     </style>
 
-    <script type="module">
+      <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
@@ -383,7 +383,7 @@
                         nama: data.namaLengkap || data.namaDepan + (data.namaBelakang ? ' ' + data.namaBelakang : '') || 'Tanpa Nama',
                         email: data.email || 'Tidak ada email',
                         bisnis: data.bisnis?.nama || 'Belum diatur',
-                        isVerified: data.isVerified || false 
+                        isVerified: data.isVerified === true // Memastikan hanya bernilai true jika benar-benar ada dan bernilai true
                     });
                 });
                 
@@ -453,9 +453,16 @@
 
             try {
                 const userRef = doc(db, "users", uid);
-                await updateDoc(userRef, {
-                    isVerified: setVerified
-                });
+                
+                let updatePayload = {};
+                if (setVerified) {
+                    updatePayload.isVerified = true;
+                } else {
+                    // Benar-benar menghapus field isVerified dari dokumen database Firestore
+                    updatePayload.isVerified = deleteField();
+                }
+
+                await updateDoc(userRef, updatePayload);
                 
                 const userIndex = usersData.findIndex(u => u.uid === uid);
                 if (userIndex !== -1) {
@@ -488,5 +495,6 @@
 
         fetchUsers();
     </script>
+
 </body>
 </html>
