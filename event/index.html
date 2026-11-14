@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Sitenexs Events</title>
+    
+    <!-- Meta SEO -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-subtle: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.625rem;
+            --radius-xl: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 15px; width: 100%; }
+        body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; overflow-x: hidden; width: 100%; -webkit-font-smoothing: antialiased; }
+        a { text-decoration: none; color: inherit; }
+        button, input, select, textarea { font-family: inherit; outline: none; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-md); transition: var(--transition); cursor: pointer; border: 1px solid transparent; text-align: center; }
+        .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; border-radius: var(--radius-sm); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+        .btn-secondary { background-color: #ffffff; color: var(--text-main); border: 1px solid var(--border-medium); }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-danger:hover { background-color: var(--danger); color: #fff; }
+        .btn-block { width: 100%; }
+
+        /* NAVBAR */
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-container { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+        .logo { display: flex; align-items: center; gap: 0.6rem; font-weight: 800; font-size: 1.25rem; color: var(--text-main); }
+        .logo-text { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-img { height: 38px; width: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: var(--shadow-sm); }
+
+        /* MAIN CONTENT */
+        .admin-main { padding-top: 120px; padding-bottom: 5rem; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .admin-title { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .admin-subtitle { font-size: 0.95rem; color: var(--text-muted); }
+
+        /* TABLE CARD */
+        .table-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th, td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+        th { background-color: var(--bg-body); font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        tr:last-child td { border-bottom: none; }
+        .badge { display: inline-flex; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+        .badge.upcoming { background-color: rgba(37, 99, 235, 0.1); color: var(--primary); }
+        .badge.ended { background-color: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 1rem; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--bg-card); border-radius: var(--radius-xl); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 2.5rem; position: relative; box-shadow: var(--shadow-lg); transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(0,0,0,0.05); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: var(--transition); }
+        .modal-close:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-main); }
+        .form-control { width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-medium); background-color: var(--bg-body); font-size: 0.95rem; color: var(--text-main); transition: var(--transition); }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); background-color: #fff; }
+        .preview-img { margin-top: 0.5rem; max-width: 100px; max-height: 60px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-medium); display: none; }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="https://sitenexs.com/assets/logo/logo.png" alt="Sitenexs Logo" class="logo-img" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=S&background=2563eb&color=fff&size=64&rounded=true';">
+                <span class="logo-text">Sitenexs <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Admin</span></span>
+            </a>
+            <a href="index.html" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Kembali ke Situs
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <div class="container">
+            <div class="admin-header">
+                <div>
+                    <h1 class="admin-title">Manajemen Event</h1>
+                    <p class="admin-subtitle">Tambah, ubah, atau hapus daftar webinar & workshop Sitenexs.</p>
+                </div>
+                <button class="btn btn-primary" id="openAddModalBtn">
+                    <i class="fas fa-plus"></i> Tambah Event Baru
+                </button>
+            </div>
+
+            <!-- TABLE -->
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Tanggal & Waktu</th>
+                                <th>Pembicara</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminEventsTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Memuat data event...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL FORM EVENT -->
+    <div id="eventModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModalBtn"><i class="fas fa-times"></i></button>
+            <h3 id="modalTitle" style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);">Tambah Event Baru</h3>
+            
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+                <input type="hidden" id="existingImageUrl">
+                <input type="hidden" id="existingSpeakerFoto">
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Judul Event</label>
+                        <input type="text" id="eventJudul" required class="form-control" placeholder="Contoh: Strategi Digitalisasi Toko & POS Modern">
+                    </div>
+                    <div class="form-group full">
+                        <label>Deskripsi Singkat</label>
+                        <textarea id="eventDeskripsi" rows="3" required class="form-control" placeholder="Penjelasan singkat mengenai event..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label>Link Tujuan Event (URL / Zoom / Pendaftaran)</label>
+                        <input type="url" id="eventLink" class="form-control" placeholder="https://zoom.us/... atau https://wa.me/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Jadwal / Tanggal</label>
+                        <input type="text" id="eventTanggal" required class="form-control" placeholder="25 November 2026 • 19:30 WIB">
+                    </div>
+                    <div class="form-group">
+                        <label>Status Event</label>
+                        <select id="eventStatus" class="form-control">
+                            <option value="upcoming">Akan Datang (Upcoming)</option>
+                            <option value="ended">Selesai (Ended)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>Upload Banner Event (Gambar)</label>
+                        <input type="file" id="eventImageFile" accept="image/*" class="form-control">
+                        <img id="previewBanner" class="preview-img" alt="Preview Banner">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Pembicara / Host</label>
+                        <input type="text" id="eventSpeakerNama" required class="form-control" placeholder="Syafaat Nuryadi (Founder)">
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Foto Pembicara</label>
+                        <input type="file" id="eventSpeakerFile" accept="image/*" class="form-control">
+                        <img id="previewSpeaker" class="preview-img" alt="Preview Speaker">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelModalBtn">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="saveEventBtn">Simpan Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE & SUPABASE SCRIPT -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // Inisialisasi Firebase
+        const firebaseConfig = {
+            apiKey: 'AIzaSyDuN4zlRaSnmcUSuXE_E84IE7d3Mz8E-N4',
+            authDomain: 'sitenexs-62919.firebaseapp.com',
+            projectId: 'sitenexs-62919',
+            storageBucket: 'sitenexs-62919.firebasestorage.app',
+            messagingSenderId: '1060348110644',
+            appId: '1:1060348110644:web:e45af14d5f26a9cf8e6761',
+            measurementId: 'G-C7YL0Q7YRQ'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Konfigurasi Supabase
+        const SUPABASE_URL = 'https://xqcbyamxiekdxytntlno.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_XKHXYrEw2EDdfYH17Uyx6w_k_BtGLQa';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const STORAGE_BUCKET = 'events';
+
+        async function uploadToSupabase(file, folder = 'banners') {
+            if (!file) return null;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${folder}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { data, error } = await supabase.storage
+                .from(STORAGE_BUCKET)
+                .upload(filePath, file);
+
+            if (error) {
+                console.error("Gagal mengunggah ke Supabase:", error.message);
+                throw new Error("Gagal mengunggah gambar ke Supabase Storage: " + error.message);
+            }
+
+            const { data: publicData } = supabase.storage
+                .from(STORAGE_BUCKET)
+                .getPublicUrl(filePath);
+
+            return publicData ? publicData.publicUrl : null;
+        }
+
+        let localEventsCache = [];
+
+        const tableBody = document.getElementById('adminEventsTable');
+        const modal = document.getElementById('eventModal');
+        const openAddModalBtn = document.getElementById('openAddModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const eventForm = document.getElementById('eventForm');
+        const modalTitle = document.getElementById('modalTitle');
+
+        const eventIdInput = document.getElementById('eventId');
+        const existingImageUrlInput = document.getElementById('existingImageUrl');
+        const existingSpeakerFotoInput = document.getElementById('existingSpeakerFoto');
+        const eventJudulInput = document.getElementById('eventJudul');
+        const eventDeskripsiInput = document.getElementById('eventDeskripsi');
+        const eventLinkInput = document.getElementById('eventLink');
+        const eventTanggalInput = document.getElementById('eventTanggal');
+        const eventStatusInput = document.getElementById('eventStatus');
+        const eventImageFileInput = document.getElementById('eventImageFile');
+        const eventSpeakerFileInput = document.getElementById('eventSpeakerFile');
+        const eventSpeakerNamaInput = document.getElementById('eventSpeakerNama');
+
+        async function fetchAdminEvents() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "events"));
+                localEventsCache = [];
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    localEventsCache.push({ 
+                        id: docSnap.id, 
+                        ...data
+                    });
+                });
+                renderTable(localEventsCache);
+            } catch (error) {
+                console.error("Gagal memuat event:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 2rem;">Gagal memuat data dari Firestore. Cek konsol browser.</td></tr>`;
+            }
+        }
+
+        function renderTable(events) {
+            if (events.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">Belum ada event tersedia. Silakan buat baru.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            events.forEach(ev => {
+                const badgeClass = ev.status === 'ended' ? 'ended' : 'upcoming';
+                const badgeText = ev.status === 'ended' ? 'Selesai' : 'Akan Datang';
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">${ev.judul}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.deskripsi}</div>
+                        </td>
+                        <td style="white-space: nowrap; color: var(--text-muted);">${ev.tanggal}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <img src="${ev.speakerFoto || ''}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=U&background=2563eb&color=fff';">
+                                <span style="font-weight: 600; font-size: 0.85rem;">${ev.speakerNama}</span>
+                            </div>
+                        </td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <button class="btn btn-secondary btn-sm edit-btn" data-id="${ev.id}" style="margin-right: 0.4rem;"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="${ev.id}"><i class="fas fa-trash"></i> Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    openEditModal(btn.getAttribute('data-id'));
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deleteEventRecord(btn.getAttribute('data-id'));
+                });
+            });
+        }
+
+        function openModal() {
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            eventForm.reset();
+            eventIdInput.value = '';
+            existingImageUrlInput.value = '';
+            existingSpeakerFotoInput.value = '';
+            document.getElementById('previewBanner').style.display = 'none';
+            document.getElementById('previewSpeaker').style.display = 'none';
+        }
+
+        openAddModalBtn.addEventListener('click', () => {
+            modalTitle.textContent = 'Tambah Event Baru';
+            eventForm.reset();
+            eventIdInput.value = '';
+            existingImageUrlInput.value = '';
+            existingSpeakerFotoInput.value = '';
+            document.getElementById('previewBanner').style.display = 'none';
+            document.getElementById('previewSpeaker').style.display = 'none';
+            openModal();
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        function openEditModal(id) {
+            const ev = localEventsCache.find(item => item.id === id);
+            if (!ev) return;
+
+            modalTitle.textContent = 'Edit Event';
+            eventIdInput.value = ev.id;
+            eventJudulInput.value = ev.judul || '';
+            eventDeskripsiInput.value = ev.deskripsi || '';
+            eventLinkInput.value = ev.eventLink || '';
+            eventTanggalInput.value = ev.tanggal || '';
+            eventStatusInput.value = ev.status || 'upcoming';
+            eventSpeakerNamaInput.value = ev.speakerNama || '';
+            
+            existingImageUrlInput.value = ev.imageUrl || '';
+            existingSpeakerFotoInput.value = ev.speakerFoto || '';
+
+            const pb = document.getElementById('previewBanner');
+            if (ev.imageUrl) { pb.src = ev.imageUrl; pb.style.display = 'block'; } else { pb.style.display = 'none'; }
+
+            const ps = document.getElementById('previewSpeaker');
+            if (ev.speakerFoto) { ps.src = ev.speakerFoto; ps.style.display = 'block'; } else { ps.style.display = 'none'; }
+
+            openModal();
+        }
+
+        eventForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById('saveEventBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+            try {
+                const id = eventIdInput.value;
+                let imageUrl = existingImageUrlInput.value;
+                let speakerFoto = existingSpeakerFotoInput.value;
+
+                const bannerFile = eventImageFileInput.files[0];
+                if (bannerFile) {
+                    imageUrl = await uploadToSupabase(bannerFile, 'banners');
+                }
+
+                const speakerFile = eventSpeakerFileInput.files[0];
+                if (speakerFile) {
+                    speakerFoto = await uploadToSupabase(speakerFile, 'speakers');
+                }
+
+                const payload = {
+                    judul: eventJudulInput.value.trim(),
+                    deskripsi: eventDeskripsiInput.value.trim(),
+                    eventLink: eventLinkInput.value.trim(),
+                    tanggal: eventTanggalInput.value.trim(),
+                    status: eventStatusInput.value,
+                    imageUrl: imageUrl || '',
+                    speakerNama: eventSpeakerNamaInput.value.trim(),
+                    speakerFoto: speakerFoto || '',
+                    updatedAt: serverTimestamp()
+                };
+
+                if (id) {
+                    const docRef = doc(db, "events", id);
+                    await updateDoc(docRef, payload);
+                    alert('Event berhasil diperbarui!');
+                } else {
+                    payload.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "events"), payload);
+                    alert('Event baru berhasil ditambahkan!');
+                }
+
+                closeModal();
+                fetchAdminEvents();
+            } catch (err) {
+                console.error("Gagal menyimpan event:", err);
+                alert('Terjadi kesalahan: ' + err.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = 'Simpan Event';
+            }
+        });
+
+        async function deleteEventRecord(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus event ini?')) {
+                try {
+                    await deleteDoc(doc(db, "events", id));
+                    alert('Event berhasil dihapus.');
+                    fetchAdminEvents();
+                } catch (err) {
+                    console.error("Gagal menghapus event:", err);
+                    alert('Gagal menghapus event.');
+                }
+            }
+        }
+
+        fetchAdminEvents();
+    </script>
+</body>
+</html>
